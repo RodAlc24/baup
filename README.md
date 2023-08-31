@@ -5,12 +5,23 @@ This project consists of two bash scripts and a directory containing some files.
 
 ## Usage
 
-### Preparing `files.txt`
+### Preparing `backupFiles` and `files.txt`
 
 
-Before running the scripts, you need to create a `files.txt` file that specifies the path and filename for each file you want to export or import. Each line in the file should be in the format `relative/or/absolute/path;file_name`.
+Before running the scripts, you need to create a `backupFiles` directory and a `files.txt` file inside it. 
 
+```
+.
+├── README.md
+├── backupFiles
+│   └── files.txt
+├── exportFiles.sh
+└── importFiles.sh
+```
+
+`files.txt` specifies the path and filename for each file you want to export or import. Each line in the file should be in the format `relative/or/absolute/path;file_name`.
 For example:
+
 ``` 
 /home/john/.config/nvim;init.vim
 ~/.config/kitty;kitty.conf
@@ -44,3 +55,7 @@ Make sure that the `exportFiles.sh` and `importFiles.sh` scripts have the approp
 ``` 
 chmod +x exportFiles.sh importFiles.sh
 ``` 
+
+## Buckup repo
+
+The `backupFiles/` directory may be a git repository.
