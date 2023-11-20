@@ -48,6 +48,10 @@ To import files from their specified paths in `files.txt` to the `backupFiles/` 
 
 This will copy the files from their specified paths in `files.txt` to the `backupFiles/` directory. If the `backupFiles/` directory does not exist, it will be created.
 
+## Dependencies
+
+`rsync`
+
 ## Note
 
 Make sure that the `exportFiles.sh` and `importFiles.sh` scripts have the appropriate permissions to run. You can set the appropriate permissions with the following command:
