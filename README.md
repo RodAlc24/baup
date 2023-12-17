@@ -57,7 +57,7 @@ Make sure that the `exportFiles.sh` and `importFiles.sh` scripts have the approp
 chmod +x exportFiles.sh importFiles.sh
 ``` 
 
-## Buckup repo
+## Backup repo
 
 The `backupFiles/` directory may be a git repository.
 
