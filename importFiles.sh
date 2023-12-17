@@ -7,9 +7,9 @@ NC='\033[0m' # No Color
 
 # Read list of file paths and names from files.txt
 while IFS=';' read -r file file_directory; do
-    file_all=$(eval echo "$file")
-    directory_all=$(eval echo "$file_directory")
-    file_name=$(basename "$file_all")
+  file_all=$(eval echo "$file")
+  directory_all=$(eval echo "$file_directory")
+  file_name=$(basename "$file_all")
   
   # Check if file exists in specified path
   if [ -f "$file_all" ]; then
