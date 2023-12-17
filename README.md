@@ -1,7 +1,7 @@
 # Project overview
 
 
-This project consists of two bash scripts and a directory containing some files. The directory `backupFiles/` contains the files that will be imported and exported and the `files.txt` file that contains the path and filename of each file that will be exported or imported. The `exportFiles.sh` script exports the files to their specified path, and the `importFiles.sh` script imports the files from their specified path.
+This project consists of two bash scripts and a directory containing some files. The directory `backupFiles/` contains the files and direacories that will be imported and exported and the `files.txt` file that contains the path and filename of each file that will be exported or imported. The `exportFiles.sh` script exports the files to the specified path, and the `importFiles.sh` script imports the files from their specified path.
 
 ## Usage
 
@@ -19,14 +19,15 @@ Before running the scripts, you need to create a `backupFiles` directory and a `
 └── importFiles.sh
 ```
 
-`files.txt` specifies the path and filename for each file you want to export or import. Each line in the file should be in the format `relative/or/absolute/path;file_name`.
+`files.txt` specifies the path and filename for each file you want to export or import. It also specifies the subdirectory (in backupFiles) in which to save the file. Each line in the file should be in the format `relative/or/absolute/path/filename;backup_directory`.
 For example:
 
 ``` 
-/home/john/.config/nvim;init.vim
-~/.config/kitty;kitty.conf
+/home/john/.config/nvim/init.vim;nvim
+~/.config/kitty/kitty.conf;kitty
 ```
 
+This will save init.vim in ./backupFiles/nvim and kitty.conf in ./backupFiles/kitty
 
 ### Exporting files
 
@@ -63,3 +64,8 @@ chmod +x exportFiles.sh importFiles.sh
 ## Buckup repo
 
 The `backupFiles/` directory may be a git repository.
+
+## Contributors
+
+- RodAlc24
+- ImanolCiganda
