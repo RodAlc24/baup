@@ -18,11 +18,8 @@ while IFS=';' read -r file file_directory; do
     # Create directory structure in backupFiles directory
     mkdir -p "./backupFiles/$directory_all" 
     # copy file to backupFiles directory if it has been modified
-    if rsync --itemize-changes --update "$file_all" "./backupFiles/$directory_all" | grep -q ">f"; then
-      echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$dir_all"
-    else 
-      echo -e " [${GREEN}OK${NC}] $file_name is up to date"
-    fi
+    cp "$file_all" "./backupFiles/$directory_all" 
+    echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$dir_all"
   else
     echo -e " [${RED}ERROR${NC}] $file_name does not exist"
   fi
