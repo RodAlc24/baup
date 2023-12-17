@@ -19,12 +19,14 @@ Before running the scripts, you need to create a `backupFiles` directory and a `
 └── importFiles.sh
 ```
 
-`files.txt` specifies the path and filename for each file you want to export or import. Each line in the file should be in the format `relative/or/absolute/path;file_name`.
+`files.txt` specifies the path and filename for each file you want to export or import. It also specifies the subfolder (in backupFiles) in which to save the file. Each line in the file should be in the format `relative/or/absolute/path/filename;backup_folder`.
 For example:
 
 ``` 
-/home/john/.config/nvim;init.vim
-~/.config/kitty;kitty.conf
+/home/john/.config/nvim/init.vim;nvim
+~/.config/kitty/kitty.conf;kitty
+
+# This will save init.vim in ./backupFiles/nvim and kitty.conf in ./backupFiles/kitty
 ```
 
 
