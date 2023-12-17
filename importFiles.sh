@@ -6,9 +6,9 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 # Read list of file paths and names from files.txt
-while IFS=';' read -r file file_folder; do
+while IFS=';' read -r file file_directory; do
     file_all=$(eval echo "$file")
-    folder_all=$(eval echo "$file_folder")
+    directory_all=$(eval echo "$file_directory")
     file_name=$(basename "$file_all")
   
   # Check if file exists in specified path
@@ -16,10 +16,10 @@ while IFS=';' read -r file file_folder; do
     # Create backupFiles directory if it doesn't exist
     mkdir -p ./backupFiles
     # Create directory structure in backupFiles directory
-    mkdir -p "./backupFiles/$folder_all" 
+    mkdir -p "./backupFiles/$directory_all" 
     # copy file to backupFiles directory if it has been modified
-    if rsync --itemize-changes --update "$file_all" "./backupFiles/$folder_all" | grep -q ">f"; then
-      echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$folder_all"
+    if rsync --itemize-changes --update "$file_all" "./backupFiles/$directory_all" | grep -q ">f"; then
+      echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$dir_all"
     else 
       echo -e " [${GREEN}OK${NC}] $file_name is up to date"
     fi
