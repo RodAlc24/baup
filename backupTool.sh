@@ -15,21 +15,23 @@ while IFS=';' read -r file file_folder; do
     directory_all=$(eval echo "$file_folder")
     file_name=$(basename "$file_all")
   
-  # Check if file exists in specified path
-  if [ -f "$file_all" ]; then
-    # Create backupFiles directory if it doesn't exist
-    mkdir -p ./backupFiles
-    # Create directory structure in backupFiles directory
-    mkdir -p "./backupFiles/$directory_all" 
-    # Copy file to backupFiles directory
-    if cp "$file_all" "./backupFiles/$directory_all"; then
-      echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$directory_all"
-    else 
-      echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
+  for file in $file_all; do
+    # Check if file exists in specified path
+    if [ -f "$file" ]; then
+      # Create backupFiles directory if it doesn't exist
+      mkdir -p ./backupFiles
+      # Create directory structure in backupFiles directory
+      mkdir -p "./backupFiles/$directory_all" 
+      # Copy file to backupFiles directory
+      if cp "$file" "./backupFiles/$directory_all"; then
+        echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$directory_all"
+      else 
+        echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
+      fi
+    elif [ ! -z "$file" ]; then
+      echo -e " [${RED}ERROR${NC}] $file_name does not exist"
     fi
-  elif [ ! -z "$file_all" ]; then
-    echo -e " [${RED}ERROR${NC}] $file_name does not exist"
-  fi
+  done
 done < "$1"
 }
 
