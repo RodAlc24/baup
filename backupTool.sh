@@ -27,7 +27,7 @@ while IFS=';' read -r file file_folder; do
     else 
       echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
     fi
-  else
+  elif [ ! -z "$file_all" ]; then
     echo -e " [${RED}ERROR${NC}] $file_name does not exist"
   fi
 done < "$1"
@@ -51,7 +51,7 @@ while IFS=';' read -r file file_folder; do
     else 
       echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
     fi
-  else
+  elif [ ! -z "$file_all" ]; then
     echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
   fi
 done < "$1"
@@ -107,7 +107,7 @@ while IFS=';' read -r file file_folder; do
         return
       fi
     fi
-  else
+  elif [ ! -z "$file_all" ]; then
     echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
   fi
 done < "$1"
