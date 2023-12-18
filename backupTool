@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# File with the files to backup
+FILE = "/home/imanol/.config/backUp/backupFiles/files.txt"
+
+# Define colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+import_files(){
+
+# Read list of file paths and names from files.txt
+while IFS=';' read -r file file_folder; do
+    file_all=$(eval echo "$file")
+    folder_all=$(eval echo "$file_folder")
+    file_name=$(basename "$file_all")
+  
+  # Check if file exists in specified path
+  if [ -f "$file_all" ]; then
+    # Create backupFiles directory if it doesn't exist
+    mkdir -p ./backupFiles
+    # Create directory structure in backupFiles directory
+    mkdir -p "./backupFiles/$folder_all" 
+    # copy file to backupFiles directory if it has been modified
+    if rsync --itemize-changes --update "$file_all" "./backupFiles/$folder_all" | grep -q ">f"; then
+      echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$folder_all"
+    else 
+      echo -e " [${GREEN}OK${NC}] $file_name is up to date"
+    fi
+  else
+    echo -e " [${RED}ERROR${NC}] $file_name does not exist"
+  fi
+done < $FILE
+	
+}
+
+export_files(){
+
+# read list of file paths and names from files.txt
+while IFS=';' read -r file file_folder; do
+    file_all=$(eval echo "$file")
+    folder_all=$(eval echo "$file_folder")
+    file_path=$(dirname "$file")
+    file_name=$(basename "$file_all")
+
+  # check if file exists in backupFiles directory
+  if [ -f "./backupFiles/$folder_all/$file_name" ]; then
+    # create directory path if it doesn't exist
+    mkdir -p $(eval echo "$file_path")
+    # copy file to specified path
+    if rsync --itemize-changes --update "./backupFiles/$folder_all/$file_name" "$file_all" | grep -q ">f"; then
+      echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
+    else 
+      echo -e " [${GREEN}OK${NC}] $file_name is up to date"
+    fi
+  else
+    echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$folder_all"
+  fi
+done < $FILE
+
+	
+}
+
+commit(){
+	
+}
