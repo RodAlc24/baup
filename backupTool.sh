@@ -67,7 +67,7 @@ function commit(){
     commit_message="$2"
     echo $commit_message
     git add .
-    git commit -m $commit_message
+    git commit -m "$commit_message"
     git push
   fi
 }
