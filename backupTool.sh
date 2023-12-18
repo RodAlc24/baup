@@ -21,7 +21,7 @@ while IFS=';' read -r file file_folder; do
     mkdir -p ./backupFiles
     # Create directory structure in backupFiles directory
     mkdir -p "./backupFiles/$directory_all" 
-    # copy file to backupFiles directory if it has been modified
+    # Copy file to backupFiles directory
     if cp "$file_all" "./backupFiles/$directory_all"; then
       echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$directory_all"
     else 
@@ -31,22 +31,21 @@ while IFS=';' read -r file file_folder; do
     echo -e " [${RED}ERROR${NC}] $file_name does not exist"
   fi
 done < "$1"
-	
 }
 
 function export_files(){
-# read list of file paths and names from files.txt
+# Read list of file paths and names from files.txt
 while IFS=';' read -r file file_folder; do
     file_all=$(eval echo "$file")
     directory_all=$(eval echo "$file_folder")
     file_path=$(dirname "$file")
     file_name=$(basename "$file_all")
 
-  # check if file exists in backupFiles directory
+  # Check if file exists in backupFiles directory
   if [ -f "./backupFiles/$directory_all/$file_name" ]; then
-    # create directory path if it doesn't exist
+    # Create directory path if it doesn't exist
     mkdir -p $(eval echo "$file_path")
-    # copy file to specified path
+    # Copy file to specified path
     if cp "./backupFiles/$directory_all/$file_name" "$file_all"; then
       echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
     fi
@@ -54,18 +53,16 @@ while IFS=';' read -r file file_folder; do
     echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
   fi
 done < "$1"
-
-	
 }
 
 function commit(){
-  # detects folder of the backups	
+  # Detects folder of the backups	
   backup_folder=$(dirname "$1")
-  # moves to that folder
+  # Moves to that folder
   cd "$backup_folder"
   if [ $? -eq 0 ]; then
     commit_message="$2"
-    echo $commit_message
+    # Does the commit and push
     git add .
     git commit -m "$commit_message"
     git push
@@ -80,9 +77,29 @@ function help(){
   echo "Help"  
 }
 
-# function diff(){
-  
-# }
+function check_diff(){
+while IFS=';' read -r file file_folder; do
+    file_all=$(eval echo "$file")
+    directory_all=$(eval echo "$file_folder")
+    file_path=$(dirname "$file")
+    file_name=$(basename "$file_all")
+
+  # Check if file exists in backupFiles directory
+  if [ -f "./backupFiles/$directory_all/$file_name" ]; then
+    # Checks diff in file
+    diff -u --color "$file_all" "./backupFiles/$directory_all/$file_name"
+    if [ $? -eq 0 ]; then
+      echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
+    fi
+      read -n 1 -p "Press 'q' to exit ; Press any other key to compare next file " key < /dev/tty  
+      if [[ ${key,,} == 'q' ]]; then
+        return
+      fi
+  else
+    echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
+  fi
+done < "$1"
+}
 
 if [ "$#" -eq 0 ]; then
   help
@@ -110,6 +127,9 @@ else
           echo -e "[${RED}ERROR${NC}] No commit message passed"
           break
         fi
+        ;;
+      "-d" | "--diff")
+        check_diff $FILE
         ;;
       *)
         echo "Argumento: ${!i}"
