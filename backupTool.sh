@@ -87,7 +87,7 @@ while IFS=';' read -r file file_folder; do
   # Check if file exists in backupFiles directory
   if [ -f "./backupFiles/$directory_all/$file_name" ]; then
     # Checks diff in file
-    diff -u --color "$file_all" "./backupFiles/$directory_all/$file_name"
+    diff -u --color "./backupFiles/$directory_all/$file_name" "$file_all"
     if [ $? -eq 0 ]; then
       echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
     fi
