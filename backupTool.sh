@@ -62,19 +62,28 @@ function commit(){
   cd "$backup_folder"
   if [ $? -eq 0 ]; then
     commit_message="$2"
-    # Does the commit and push
+    # Does the commit
     git add .
     git commit -m "$commit_message"
     git push
   fi
 }
 
-function edit(){
-  $EDITOR "$1"
+function push(){
+  # Detects folder of the backups	
+  backup_folder=$(dirname "$1")
+  # Moves to that folder
+  cd "$backup_folder"
+  if [ $? -eq 0 ]; then
+    commit_message="$2"
+    # Push
+    git push
+  fi
+  
 }
 
-function help(){
-  echo -e "Help"  
+function edit(){
+  $EDITOR "$1"
 }
 
 function check_diff(){
@@ -100,6 +109,17 @@ while IFS=';' read -r file file_folder; do
     echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
   fi
 done < "$1"
+}
+
+function help(){
+  echo -e "Usage: backupTool [OPTIONS]...\nA utility to manage your config files.\n"
+  echo -e "\t-h, --help  \tOpens this help menu"
+  echo -e "\t-i, --import\tImports the config files to the backupFiles folder"
+  echo -e "\t-e, --export\tExports the config files from the backupFiles folder"
+  echo -e "\t-c, --commit\tCreates (using git) a commit in the backupFiles folder. The argument that follows will be used as commit message"
+  echo -e "\t-p, --push  \tPushes (using git) any changes in the backupFiles folder"
+  echo -e "\t-d, --diff  \tChecks for any changes in the configuration files (comparing to the backupFiles folder)\n"
+  echo -e "You can also call backupTool edit to edit the file where you specify the files to import/export"
 }
 
 if [ "$#" -eq 0 ]; then
@@ -128,6 +148,9 @@ else
           echo -e "[${RED}ERROR${NC}] No commit message passed"
           break
         fi
+        ;;
+      "-p" | "--push")
+        push $FILE
         ;;
       "-d" | "--diff")
         check_diff $FILE
