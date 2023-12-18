@@ -25,7 +25,7 @@ while IFS=';' read -r file file_folder; do
     if cp "$file_all" "./backupFiles/$directory_all"; then
       echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$directory_all"
     else 
-      echo -e " [${GREEN}OK${NC}] $file_name is up to date"
+      echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
     fi
   else
     echo -e " [${RED}ERROR${NC}] $file_name does not exist"
@@ -48,6 +48,8 @@ while IFS=';' read -r file file_folder; do
     # Copy file to specified path
     if cp "./backupFiles/$directory_all/$file_name" "$file_all"; then
       echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
+    else 
+      echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
     fi
   else
     echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
