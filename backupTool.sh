@@ -74,7 +74,7 @@ function edit(){
 }
 
 function help(){
-  echo "Help"  
+  echo -e "Help"  
 }
 
 function check_diff(){
@@ -90,11 +90,12 @@ while IFS=';' read -r file file_folder; do
     diff -u --color "./backupFiles/$directory_all/$file_name" "$file_all"
     if [ $? -eq 0 ]; then
       echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
-    fi
+    else
       read -n 1 -p "Press 'q' to exit ; Press any other key to compare next file " key < /dev/tty  
       if [[ ${key,,} == 'q' ]]; then
         return
       fi
+    fi
   else
     echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
   fi
