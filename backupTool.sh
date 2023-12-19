@@ -8,6 +8,8 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+FILE_FOLDER=$(dirname $FILE)
+
 function import_files(){
 # Read list of file paths and names from files.txt
     file_all=$(eval echo "$1")
@@ -18,18 +20,18 @@ function import_files(){
     # Check if file exists in specified path
     if [ -f "$file" ]; then
       # Create backupFiles directory if it doesn't exist
-      mkdir -p ./backupFiles
+      mkdir -p $FILE_FOLDER
       # Create directory structure in backupFiles directory
-      mkdir -p "./backupFiles/$directory_all" 
+      mkdir -p "$FILE_FOLDER/$directory_all" 
       # Copy file to backupFiles directory
-      if cp "$file" "./backupFiles/$directory_all"; then
+      if cp "$file" "$FILE_FOLDER/$directory_all"; then
         echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$directory_all"
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
       fi
     elif [ -d "$file" ]; then
       rel_path="${file#${1/\~/$HOME}}"
-      mkdir -p ./backupFiles/$directory_all/$rel_path
+      mkdir -p $FILE_FOLDER/$directory_all/$rel_path
       file+="/*"
       directory_all+="/$rel_path"
       import_files "$file" "$directory_all"
@@ -48,11 +50,11 @@ function export_files(){
     directory_all=$(eval echo "$2")
     file_name=$(basename "$file")
     # Check if file exists in backupFiles directory
-    if [ -f "./backupFiles/$directory_all/$file_name" ]; then
+    if [ -f "$FILE_FOLDER/$directory_all/$file_name" ]; then
       # Create directory path if it doesn't exist
       mkdir -p $(eval echo "$file_path")
       # Copy file to specified path
-      if cp "./backupFiles/$directory_all/$file_name" "$file"; then
+      if cp "$FILE_FOLDER/$directory_all/$file_name" "$file"; then
         echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
@@ -107,9 +109,9 @@ function check_diff(){
     directory_all=$(eval echo "$2")
     file_name=$(basename "$file")
     # Check if file exists in backupFiles directory
-    if [ -f "./backupFiles/$directory_all/$file_name" ]; then
+    if [ -f "$FILE_FOLDER/$directory_all/$file_name" ]; then
       # Checks diff in file
-      diff -u --color "./backupFiles/$directory_all/$file_name" "$file"
+      diff -u --color "$FILE_FOLDER/$directory_all/$file_name" "$file"
       if [ $? -eq 0 ]; then
         echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
       else
