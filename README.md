@@ -55,9 +55,9 @@ chmod +x backupTool
 Also, it is recommended that the user creates a symbolic link in the /usr/bin/ directory so the utility can be used from any directory. To do this, use the following command:
 
 ```
-\# Creates the symbolic link
+# Creates the symbolic link
 sudo ln -s backupTool /usr/bin/backupTool
-\# Checks if the link has been created correctly
+# Checks if the link has been created correctly
 ls -l /usr/bin/backupTool
 ```
 
