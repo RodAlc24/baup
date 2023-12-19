@@ -10,12 +10,11 @@ NC='\033[0m' # No Color
 
 function import_files(){
 # Read list of file paths and names from files.txt
-while IFS=';' read -r file file_folder; do
-    file_all=$(eval echo "$file")
-    directory_all=$(eval echo "$file_folder")
-    file_name=$(basename "$file_all")
+    file_all=$(eval echo "$1")
   
   for file in $file_all; do
+    directory_all=$(eval echo "$2")
+    file_name=$(basename "$file")
     # Check if file exists in specified path
     if [ -f "$file" ]; then
       # Create backupFiles directory if it doesn't exist
@@ -28,35 +27,45 @@ while IFS=';' read -r file file_folder; do
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
       fi
+    elif [ -d "$file" ]; then
+      rel_path="${file#${1/\~/$HOME}}"
+      mkdir -p ./backupFiles/$directory_all/$rel_path
+      file+="/*"
+      directory_all+="/$rel_path"
+      import_files "$file" "$directory_all"
     elif [ ! -z "$file" ]; then
       echo -e " [${RED}ERROR${NC}] $file_name does not exist"
     fi
   done
-done < "$1"
 }
 
 function export_files(){
 # Read list of file paths and names from files.txt
-while IFS=';' read -r file file_folder; do
-    file_all=$(eval echo "$file")
-    directory_all=$(eval echo "$file_folder")
-    file_path=$(dirname "$file")
-    file_name=$(basename "$file_all")
+    file_all=$(eval echo "$1")
+    file_path=$(dirname "$1")
 
-  # Check if file exists in backupFiles directory
-  if [ -f "./backupFiles/$directory_all/$file_name" ]; then
-    # Create directory path if it doesn't exist
-    mkdir -p $(eval echo "$file_path")
-    # Copy file to specified path
-    if cp "./backupFiles/$directory_all/$file_name" "$file_all"; then
-      echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
-    else 
-      echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
+  for file in $file_all; do
+    directory_all=$(eval echo "$2")
+    file_name=$(basename "$file")
+    # Check if file exists in backupFiles directory
+    if [ -f "./backupFiles/$directory_all/$file_name" ]; then
+      # Create directory path if it doesn't exist
+      mkdir -p $(eval echo "$file_path")
+      # Copy file to specified path
+      if cp "./backupFiles/$directory_all/$file_name" "$file"; then
+        echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
+      else 
+        echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
+      fi
+    elif [ -d "$file" ]; then
+      rel_path="${file#${1/\~/$HOME}}"
+      file+="/*"
+      directory_all+="/$rel_path"
+      export_files "$file" "$directory_all"
+    elif [ ! -z "$file" ]; then
+      echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
     fi
-  elif [ ! -z "$file_all" ]; then
-    echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
-  fi
-done < "$1"
+  done
 }
 
 function commit(){
@@ -91,28 +100,33 @@ function edit(){
 }
 
 function check_diff(){
-while IFS=';' read -r file file_folder; do
-    file_all=$(eval echo "$file")
-    directory_all=$(eval echo "$file_folder")
-    file_path=$(dirname "$file")
-    file_name=$(basename "$file_all")
+    file_all=$(eval echo "$1")
+    file_path=$(dirname "$1")
 
-  # Check if file exists in backupFiles directory
-  if [ -f "./backupFiles/$directory_all/$file_name" ]; then
-    # Checks diff in file
-    diff -u --color "./backupFiles/$directory_all/$file_name" "$file_all"
-    if [ $? -eq 0 ]; then
-      echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
-    else
-      read -n 1 -p "Press 'q' to exit ; Press any other key to compare next file " key < /dev/tty  
-      if [[ ${key,,} == 'q' ]]; then
-        return
+  for file in $file_all; do
+    directory_all=$(eval echo "$2")
+    file_name=$(basename "$file")
+    # Check if file exists in backupFiles directory
+    if [ -f "./backupFiles/$directory_all/$file_name" ]; then
+      # Checks diff in file
+      diff -u --color "./backupFiles/$directory_all/$file_name" "$file"
+      if [ $? -eq 0 ]; then
+        echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
+      else
+        read -n 1 -p "Press 'q' to exit ; Press any other key to compare next file " key < /dev/tty  
+        if [[ ${key,,} == 'q' ]]; then
+          return
+        fi
       fi
+    elif [ -d "$file" ]; then
+      rel_path="${file#${1/\~/$HOME}}"
+      file+="/*"
+      directory_all+="/$rel_path"
+      check_diff "$file" "$directory_all"
+    elif [ ! -z "$file" ]; then
+      echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
     fi
-  elif [ ! -z "$file_all" ]; then
-    echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
-  fi
-done < "$1"
+  done
 }
 
 function help(){
@@ -139,10 +153,14 @@ else
         break
         ;;
       "-i" | "--import")
-        import_files $FILE
+        while IFS=';' read -r file file_folder; do
+        import_files $file $file_folder
+        done < $FILE
         ;;
       "-e" | "--export")
-        export_files $FILE
+        while IFS=';' read -r file file_folder; do
+        export_files $file $file_folder
+        done < $FILE
         ;;
       "-c" | "--commit")
         if [ $j -le $# ]; then
@@ -157,7 +175,9 @@ else
         push $FILE
         ;;
       "-d" | "--diff")
-        check_diff $FILE
+        while IFS=';' read -r file file_folder; do
+        check_diff $file $file_folder
+        done < $FILE
         ;;
       *)
         echo "Argumento: ${!i}"
