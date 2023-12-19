@@ -3,56 +3,63 @@
 This project is a utility to backup and manage certain files in your system. The utility consists of a bash script that reads a configurable file that tells the utility which files to import/export.
 The path to the file is stored in the utility, so this file can be anywhere.
 
-## Usage
-
-### Preparing `backupsFile`
+## Preparation
 
 Before running the utility, it is necessary to create the file that tells the utility what files and directories to import/export.
-This file doesn't need to be in any specific path, so it is up to the user to select which path is the desired.
+This file doesn't need to be in any specific path, so it is up to the user to select which path is desired.
 
 After creating the file, the user will need to enter the backupTool script and insert the path to the file in the FILE variable.
 
-This file requires a specific syntaxis to work properly. This syntaxis consists of:
-
+This file requires a specific syntax to work properly. This syntax consists of the path to the file or directory (with *) to backup and the relative folder in which to save those files in the backupsFile's directory.
+For example:
 
 ``` 
 /home/john/.config/nvim/init.vim;nvim
 ~/.config/kitty/kitty.conf;kitty
 ```
 
-This will save init.vim in ./backupFiles/nvim and kitty.conf in ./backupFiles/kitty
+This will save init.vim in path/to/backupsFile/nvim/ and kitty.conf in path/to/backupsFile/kitty/
 
-### Exporting files
+## Parameters
 
-To export files from the `backupFiles/` directory to their corresponding paths specified in `files.txt`, run the following command:
+### Import
 
-``` 
-./exportFiles.sh 
-```
+As the name says, import lets you import every file listed in the `backupsFile` to that folder. If there is a directory followed by *, the utility will save every file in every subdirectory following the same tree format.
 
-This will copy the files from `backupFiles/` to the paths specified in `files.txt`. If the specified path does not exist, it will be created.
+### Export
 
-### Importing files
+On the contrary, export copies of the backup files to the paths listed in the `backupsFile`. You may need sudo for exporting certain files.
 
-To import files from their specified paths in `files.txt` to the `backupFiles/` directory, run the following command:
+### Commit
 
-```
-./importFiles.sh
-``` 
+Using git, commit creates a commit in the backupsFile's directory. The git repository needs to be created by the user.
 
-This will copy the files from their specified paths in `files.txt` to the `backupFiles/` directory. If the `backupFiles/` directory does not exist, it will be created.
+For the commit's message, the utility will use the next parameter sent by the user.
+
+### Push
+
+Using git pushes all the commits that weren't pushed to github,...
+
+### Diff
+
+Finally, diff will show the changes that had been made to all the files in the `backupsFile`
 
 ## Note
 
-Make sure that the `exportFiles.sh` and `importFiles.sh` scripts have the appropriate permissions to run. You can set the appropriate permissions with the following command:
+Make sure that the `backupTool` script has the appropriate permissions to run. You can set the appropriate permissions with the following command:
 
 ``` 
-chmod +x exportFiles.sh importFiles.sh
+chmod +x backupTool
 ``` 
 
-## Backup repo
+Also, it is recommended that the user creates a symbolic link in the /usr/bin/ directory so the utility can be used from any directory. To do this, use the following command:
 
-The `backupFiles/` directory may be a git repository.
+```
+\# Creates the symbolic link
+sudo ln -s backupTool /usr/bin/backupTool
+\# Checks if the link has been created correctly
+ls -l /usr/bin/backupTool
+```
 
 ## Contributors
 

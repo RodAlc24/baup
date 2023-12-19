@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File with the files to backup
-FILE="/home/imanol/.config/backUp/backupFiles/files.txt"
+FILE="~/.config/backUp/backupFiles/files.txt"
 
 # Define colors
 RED='\033[0;31m'
@@ -153,7 +153,8 @@ function help(){
   echo -e "\t-c, --commit\tCreates (using git) a commit in the backupFiles folder. The argument that follows will be used as commit message"
   echo -e "\t-p, --push  \tPushes (using git) any changes in the backupFiles folder"
   echo -e "\t-d, --diff  \tChecks for any changes in the configuration files (comparing to the backupFiles folder)\n"
-  echo -e "You can also call backupTool edit to edit the file where you specify the files to import/export"
+  echo -e "You can also call backupTool edit to edit the file where you specify the files to import/export\n"
+  echo -e "If this is your first time using the utility, you are going to need to edit the script for letting it know which file to use for the backups."
 }
 
 if [ "$#" -eq 0 ]; then
