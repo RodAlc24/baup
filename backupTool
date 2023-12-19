@@ -11,8 +11,8 @@ NC='\033[0m' # No Color
 FILE_FOLDER=$(dirname $FILE)
 
 function import_files(){
-# Read list of file paths and names from files.txt
-    file_all=$(eval echo "$1")
+  # Evaluates the file/files passed as argument
+  file_all=$(eval echo "$1")
   
   for file in $file_all; do
     directory_all=$(eval echo "$2")
@@ -25,10 +25,11 @@ function import_files(){
       mkdir -p "$FILE_FOLDER/$directory_all" 
       # Copy file to backupFiles directory
       if cp "$file" "$FILE_FOLDER/$directory_all"; then
-        echo -e " [${GREEN}OK${NC}] Copied $file_name to ./backupFiles/$directory_all"
+        echo -e " [${GREEN}OK${NC}] Copied $file_name to $FILE_FOLDER/$directory_all"
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
       fi
+    # Checks if file is a directory (if it is, it will import all files in the directory)
     elif [ -d "$file" ]; then
       rel_path="${file#${1/\~/$HOME}}"
       mkdir -p $FILE_FOLDER/$directory_all/$rel_path
@@ -36,7 +37,11 @@ function import_files(){
       directory_all+="/$rel_path"
       import_files "$file" "$directory_all"
     elif [ ! -z "$file" ]; then
-      echo -e " [${RED}ERROR${NC}] $file_name does not exist"
+      if [ "$file_name" == "*" ]; then
+        echo -e " [${RED}ERROR${NC}] No files in $(dirname $file)"
+      else
+        echo -e " [${RED}ERROR${NC}] $file_name does not exist"
+      fi
     fi
   done
 }
@@ -59,13 +64,18 @@ function export_files(){
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
       fi
+    # Checks if file is a directory (if it is, it will exports all files in the directory)
     elif [ -d "$file" ]; then
       rel_path="${file#${1/\~/$HOME}}"
       file+="/*"
       directory_all+="/$rel_path"
       export_files "$file" "$directory_all"
     elif [ ! -z "$file" ]; then
-      echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
+      if [ "$file_name" == "*" ]; then
+        echo -e " [${RED}ERROR${NC}] No files in $FILE_FOLDER/$directory_all"
+      else
+        echo -e " [${RED}ERROR${NC}] $file_name does not exist in $FILE_FOLDER/$directory_all"
+      fi
     fi
   done
 }
@@ -126,7 +136,11 @@ function check_diff(){
       directory_all+="/$rel_path"
       check_diff "$file" "$directory_all"
     elif [ ! -z "$file" ]; then
-      echo -e " [${RED}ERROR${NC}] $file_name does not exist in ./backupFiles/$directory_all"
+      if [ "$file_name" == "*" ]; then
+        echo -e " [${RED}ERROR${NC}] No files in $(dirname $file)"
+      else
+        echo -e " [${RED}ERROR${NC}] $file_name does not exist in $FILE_FOLDER/$directory_all"
+      fi
     fi
   done
 }
