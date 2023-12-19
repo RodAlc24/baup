@@ -1,26 +1,19 @@
 # Project overview
 
-
-This project consists of two bash scripts and a directory containing some files. The directory `backupFiles/` contains the files and direacories that will be imported and exported and the `files.txt` file that contains the path and filename of each file that will be exported or imported. The `exportFiles.sh` script exports the files to the specified path, and the `importFiles.sh` script imports the files from their specified path.
+This project is a utility to backup and manage certain files in your system. The utility consists of a bash script that reads a configurable file that tells the utility which files to import/export.
+The path to the file is stored in the utility, so this file can be anywhere.
 
 ## Usage
 
-### Preparing `backupFiles` and `files.txt`
+### Preparing `backupsFile`
 
+Before running the utility, it is necessary to create the file that tells the utility what files and directories to import/export.
+This file doesn't need to be in any specific path, so it is up to the user to select which path is the desired.
 
-Before running the scripts, you need to create a `backupFiles` directory and a `files.txt` file inside it. 
+After creating the file, the user will need to enter the backupTool script and insert the path to the file in the FILE variable.
 
-```
-.
-├── README.md
-├── backupFiles
-│   └── files.txt
-├── exportFiles.sh
-└── importFiles.sh
-```
+This file requires a specific syntaxis to work properly. This syntaxis consists of:
 
-`files.txt` specifies the path and filename for each file you want to export or import. It also specifies the subdirectory (in backupFiles) in which to save the file. Each line in the file should be in the format `relative/or/absolute/path/filename;backup_directory`.
-For example:
 
 ``` 
 /home/john/.config/nvim/init.vim;nvim
