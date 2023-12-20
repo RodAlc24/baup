@@ -1,25 +1,15 @@
-# Project overview
+![logo](baup.png "opt title")
+## Project overview
 
+This project is a utility to backup and manage certain files in your system. The utility consists of a bash script that reads a configurable file that tells the utility which files to import/export.
+The path to the file is stored in the utility, so this file can be anywhere.
 
-This project consists of two bash scripts and a directory containing some files. The directory `backupFiles/` contains the files and direacories that will be imported and exported and the `files.txt` file that contains the path and filename of each file that will be exported or imported. The `exportFiles.sh` script exports the files to the specified path, and the `importFiles.sh` script imports the files from their specified path.
+## Preparation
 
-## Usage
+Before running the utility, it is necessary to create the file that tells the utility what files and directories to import/export.
+This file doesn't need to be in any specific path, so it is up to the user to select which path is desired.
 
-### Preparing `backupFiles` and `files.txt`
-
-
-Before running the scripts, you need to create a `backupFiles` directory and a `files.txt` file inside it. 
-
-```
-.
-├── README.md
-├── backupFiles
-│   └── files.txt
-├── exportFiles.sh
-└── importFiles.sh
-```
-
-`files.txt` specifies the path and filename for each file you want to export or import. It also specifies the subdirectory (in backupFiles) in which to save the file. Each line in the file should be in the format `relative/or/absolute/path/filename;backup_directory`.
+This file requires a specific syntax to work properly. This syntax consists of the path to the file or directory (with *) to backup and the relative folder in which to save those files in the backups's directory.
 For example:
 
 ``` 
@@ -27,39 +17,48 @@ For example:
 ~/.config/kitty/kitty.conf;kitty
 ```
 
-This will save init.vim in ./backupFiles/nvim and kitty.conf in ./backupFiles/kitty
+This will save `init.vim` in `~/.baup/nvim/` and `kitty.conf` in `~/.baup/kitty/`
 
-### Exporting files
+## Parameters
 
-To export files from the `backupFiles/` directory to their corresponding paths specified in `files.txt`, run the following command:
+### Import
 
-``` 
-./exportFiles.sh 
-```
+As the name says, import lets you import every file listed in the `files.txt` to that folder. If there is a directory followed by *, the utility will save every file in every subdirectory following the same tree format.
 
-This will copy the files from `backupFiles/` to the paths specified in `files.txt`. If the specified path does not exist, it will be created.
+### Export
 
-### Importing files
+On the contrary, export copies of the backup files to the paths listed in the `files.txt`. You may need sudo for exporting certain files.
 
-To import files from their specified paths in `files.txt` to the `backupFiles/` directory, run the following command:
+### Commit
 
-```
-./importFiles.sh
-``` 
+Using git, commit creates a commit in the baup's directory. The git repository needs to be created by the user.
 
-This will copy the files from their specified paths in `files.txt` to the `backupFiles/` directory. If the `backupFiles/` directory does not exist, it will be created.
+For the commit's message, the utility will use the next parameter sent by the user.
+
+### Push
+
+Using git pushes all the commits that weren't pushed to github,...
+
+### Diff
+
+Finally, diff will show the changes that had been made to all the files in the `files.txt`
 
 ## Note
 
-Make sure that the `exportFiles.sh` and `importFiles.sh` scripts have the appropriate permissions to run. You can set the appropriate permissions with the following command:
+Make sure that the `baup` script has the appropriate permissions to run. You can set the appropriate permissions with the following command:
 
 ``` 
-chmod +x exportFiles.sh importFiles.sh
+chmod +x baup
 ``` 
 
-## Backup repo
+Also, it is recommended that the user creates a symbolic link in the /usr/bin/ directory so the utility can be used from any directory. To do this, use the following command:
 
-The `backupFiles/` directory may be a git repository.
+```
+# Creates the symbolic link
+sudo ln -s baup /usr/bin/baup
+# Checks if the link has been created correctly
+ls -l /usr/bin/baup
+```
 
 ## Contributors
 
