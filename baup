@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # File with the files to backup
-FILE="~/.config/backUp/backupFiles/files.txt"
+FILE="~/.config/baup/files.txt"
 
 # Define colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-FILE_FOLDER=$(dirname $FILE)
+FILE_DIRECTORY=$(dirname $FILE)
 
 function import_files(){
   # Evaluates the file/files passed as argument
@@ -19,20 +19,20 @@ function import_files(){
     file_name=$(basename "$file")
     # Check if file exists in specified path
     if [ -f "$file" ]; then
-      # Create backupFiles directory if it doesn't exist
-      mkdir -p $FILE_FOLDER
-      # Create directory structure in backupFiles directory
-      mkdir -p "$FILE_FOLDER/$directory_all" 
-      # Copy file to backupFiles directory
-      if cp "$file" "$FILE_FOLDER/$directory_all"; then
-        echo -e " [${GREEN}OK${NC}] Copied $file_name to $FILE_FOLDER/$directory_all"
+      # Create backup directory if it doesn't exist
+      mkdir -p $FILE_DIRECTORY
+      # Create directory structure in backup directory
+      mkdir -p "$FILE_DIRECTORY/$directory_all" 
+      # Copy file to backup directory
+      if cp "$file" "$FILE_DIRECTORY/$directory_all"; then
+        echo -e " [${GREEN}OK${NC}] Copied $file_name to $FILE_DIRECTORY/$directory_all"
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
       fi
     # Checks if file is a directory (if it is, it will import all files in the directory)
     elif [ -d "$file" ]; then
       rel_path="${file#${1/\~/$HOME}}"
-      mkdir -p $FILE_FOLDER/$directory_all/$rel_path
+      mkdir -p $FILE_DIRECTORY/$directory_all/$rel_path
       file+="/*"
       directory_all+="/$rel_path"
       import_files "$file" "$directory_all"
@@ -54,12 +54,12 @@ function export_files(){
   for file in $file_all; do
     directory_all=$(eval echo "$2")
     file_name=$(basename "$file")
-    # Check if file exists in backupFiles directory
-    if [ -f "$FILE_FOLDER/$directory_all/$file_name" ]; then
+    # Check if file exists in backup directory
+    if [ -f "$FILE_DIRECTORY/$directory_all/$file_name" ]; then
       # Create directory path if it doesn't exist
       mkdir -p $(eval echo "$file_path")
       # Copy file to specified path
-      if cp "$FILE_FOLDER/$directory_all/$file_name" "$file"; then
+      if cp "$FILE_DIRECTORY/$directory_all/$file_name" "$file"; then
         echo -e " [${GREEN}OK${NC}] Copied $file_name to $file_path"
       else 
         echo -e " [${RED}ERROR${NC}] Error while copying $file_name"
@@ -72,19 +72,19 @@ function export_files(){
       export_files "$file" "$directory_all"
     elif [ ! -z "$file" ]; then
       if [ "$file_name" == "*" ]; then
-        echo -e " [${RED}ERROR${NC}] No files in $FILE_FOLDER/$directory_all"
+        echo -e " [${RED}ERROR${NC}] No files in $FILE_DIRECTORY/$directory_all"
       else
-        echo -e " [${RED}ERROR${NC}] $file_name does not exist in $FILE_FOLDER/$directory_all"
+        echo -e " [${RED}ERROR${NC}] $file_name does not exist in $FILE_DIRECTORY/$directory_all"
       fi
     fi
   done
 }
 
 function commit(){
-  # Detects folder of the backups	
-  backup_folder=$(dirname "$1")
-  # Moves to that folder
-  cd "$backup_folder"
+  # Detects directory of the backups	
+  backup_directory=$(dirname "$1")
+  # Moves to that directory
+  cd "$backup_directory"
   if [ $? -eq 0 ]; then
     commit_message="$2"
     # Does the commit
@@ -95,10 +95,10 @@ function commit(){
 }
 
 function push(){
-  # Detects folder of the backups	
-  backup_folder=$(dirname "$1")
-  # Moves to that folder
-  cd "$backup_folder"
+  # Detects directory of the backups	
+  backup_directory=$(dirname "$1")
+  # Moves to that directory
+  cd "$backup_directory"
   if [ $? -eq 0 ]; then
     commit_message="$2"
     # Push
@@ -118,10 +118,10 @@ function check_diff(){
   for file in $file_all; do
     directory_all=$(eval echo "$2")
     file_name=$(basename "$file")
-    # Check if file exists in backupFiles directory
-    if [ -f "$FILE_FOLDER/$directory_all/$file_name" ]; then
+    # Check if file exists in backup directory
+    if [ -f "$FILE_DIRECTORY/$directory_all/$file_name" ]; then
       # Checks diff in file
-      diff -u --color "$FILE_FOLDER/$directory_all/$file_name" "$file"
+      diff -u --color "$FILE_DIRECTORY/$directory_all/$file_name" "$file"
       if [ $? -eq 0 ]; then
         echo -e " [${GREEN}OK${NC}] There are no changes in: $file"
       else
@@ -139,22 +139,21 @@ function check_diff(){
       if [ "$file_name" == "*" ]; then
         echo -e " [${RED}ERROR${NC}] No files in $(dirname $file)"
       else
-        echo -e " [${RED}ERROR${NC}] $file_name does not exist in $FILE_FOLDER/$directory_all"
+        echo -e " [${RED}ERROR${NC}] $file_name does not exist in $FILE_DIRECTORY/$directory_all"
       fi
     fi
   done
 }
 
 function help(){
-  echo -e "Usage: backupTool [OPTIONS]...\nA utility to manage your config files.\n"
+  echo -e "Usage: baup [OPTIONS]...\nAn easy way to make backups .\n"
   echo -e "\t-h, --help  \tOpens this help menu"
-  echo -e "\t-i, --import\tImports the config files to the backupFiles folder"
-  echo -e "\t-e, --export\tExports the config files from the backupFiles folder"
-  echo -e "\t-c, --commit\tCreates (using git) a commit in the backupFiles folder. The argument that follows will be used as commit message"
-  echo -e "\t-p, --push  \tPushes (using git) any changes in the backupFiles folder"
-  echo -e "\t-d, --diff  \tChecks for any changes in the configuration files (comparing to the backupFiles folder)\n"
-  echo -e "You can also call backupTool edit to edit the file where you specify the files to import/export\n"
-  echo -e "If this is your first time using the utility, you are going to need to edit the script for letting it know which file to use for the backups."
+  echo -e "\t edit       \tEdits the file where you specify the files to import/export"
+  echo -e "\t-i, --import\tImports the config files to the backup directory"
+  echo -e "\t-e, --export\tExports the config files from the backup directory"
+  echo -e "\t-c, --commit\tCreates (using git) a commit in the backup directory. The argument that follows will be used as commit message"
+  echo -e "\t-p, --push  \tPushes (using git) any changes in the backup directory"
+  echo -e "\t-d, --diff  \tChecks for any changes in the configuration files (comparing to the backup directory)\n"
 }
 
 if [ "$#" -eq 0 ]; then
@@ -170,13 +169,13 @@ else
         break
         ;;
       "-i" | "--import")
-        while IFS=';' read -r file file_folder; do
-        import_files $file $file_folder
+        while IFS=';' read -r file directory; do
+        import_files $file $directory
         done < $FILE
         ;;
       "-e" | "--export")
-        while IFS=';' read -r file file_folder; do
-        export_files $file $file_folder
+        while IFS=';' read -r file directory; do
+        export_files $file $directory
         done < $FILE
         ;;
       "-c" | "--commit")
@@ -192,8 +191,8 @@ else
         push $FILE
         ;;
       "-d" | "--diff")
-        while IFS=';' read -r file file_folder; do
-        check_diff $file $file_folder
+        while IFS=';' read -r file directory; do
+        check_diff $file $directory
         done < $FILE
         ;;
       *)
