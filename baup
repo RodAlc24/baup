@@ -90,7 +90,6 @@ function commit(){
     # Does the commit
     git add .
     git commit -m "$commit_message"
-    git push
   fi
 }
 
