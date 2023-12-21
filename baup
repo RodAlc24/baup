@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File with the files to backup
-FILE="~/.baup/files.txt"
+FILE="$HOME/.config/backUp/backupFiles/files.txt"
 
 # Define colors
 RED='\033[0;31m'
@@ -98,12 +98,17 @@ function push(){
   backup_directory=$(dirname "$1")
   # Moves to that directory
   cd "$backup_directory"
-  if [ $? -eq 0 ]; then
-    commit_message="$2"
-    # Push
-    git push
-  fi
-  
+  # Push
+  git push
+}
+
+function pull(){
+  # Detects directory of the backups	
+  backup_directory=$(dirname "$1")
+  # Moves to that directory
+  cd "$backup_directory"
+  # Push
+  git pull
 }
 
 function edit(){
@@ -145,13 +150,14 @@ function check_diff(){
 }
 
 function help(){
-  echo -e "Usage: baup [OPTIONS]...\nAn easy way to make backups .\n"
-  echo -e "\t-h, --help  \tOpens this help menu"
+  echo -e "Usage: baup [OPTIONS]...\nAn easy way to make backups.\n"
   echo -e "\t edit       \tEdits the file where you specify the files to import/export"
+  echo -e "\t-h, --help  \tOpens this help menu"
   echo -e "\t-i, --import\tImports the config files to the backup directory"
   echo -e "\t-e, --export\tExports the config files from the backup directory"
   echo -e "\t-c, --commit\tCreates (using git) a commit in the backup directory. The argument that follows will be used as commit message"
   echo -e "\t-p, --push  \tPushes (using git) any changes in the backup directory"
+  echo -e "\t-l, --pull  \tPulls from the directory in which the files are stored"
   echo -e "\t-d, --diff  \tChecks for any changes in the configuration files (comparing to the backup directory)\n"
 }
 
@@ -188,6 +194,9 @@ else
         ;;
       "-p" | "--push")
         push $FILE
+        ;;
+      "-l" | "--pull")
+        pull $FILE
         ;;
       "-d" | "--diff")
         while IFS=';' read -r file directory; do
