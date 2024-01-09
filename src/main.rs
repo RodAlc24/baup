@@ -1,7 +1,7 @@
 use std::env;
 mod import;
 
-// S
+// Struct for the arguments
 struct Cli {
     command: String,
     options: Option<String>,
@@ -9,13 +9,16 @@ struct Cli {
 
 // Main function for the program
 fn main() {
+    // Collects the arguments
     let args: Vec<String> = env::args().collect();
 
+    // If no arguments, opens help menu
     if args.len() == 1{
         println!("Help");
         return;
     }
     
+    // Parse arguments and creates cli variable for storing them
     let command = args[1].clone();
     let options = if args.len() == 2{
         None 
@@ -29,5 +32,5 @@ fn main() {
         options,
     };
     
-    import::import("/home/imanol/.baup/files.txt",&cli);
+    let _ = import::import("/home/imanol/.baup/files.txt",&cli);
 }
