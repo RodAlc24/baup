@@ -29,5 +29,5 @@ fn main() {
         options,
     };
     
-    import::import(&cli);
+    import::import("/home/imanol/.baup/files.txt",&cli);
 }
