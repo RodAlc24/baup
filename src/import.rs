@@ -1,7 +1,9 @@
-use fs_extra::dir;
-use std::fs::File;
+use std::fs::{File, self};
 use std::io::{self,prelude::*,BufReader};
+use std::process::Command;
 use crate::Cli;
+use expanduser;
+use fs_extra::dir;
 
 pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
 
@@ -29,7 +31,28 @@ pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
         
-        println!("{} {}", parts[0],parts[1]);
+        let expanded_path = expanduser::expanduser(parts[0])?;
+        
+        // Process the first part (file/directory/...)
+        match fs::metadata(expanded_path.display().to_string()){
+            Ok(metadata) => {
+                if metadata.is_file() {
+                    println!("It's a file!");
+                } else if metadata.is_dir() {
+                    println!("It's a dir!");
+                    let files = fs::read_dir(expanded_path.display().to_string()).unwrap();
+                    for path in files{
+                        println!("{:?}",path.unwrap().path().display());
+                    }
+                } else {
+                    println!("It's neither a file nor a directory.");
+                }
+            }
+            Err(e) => {
+                eprintln!("Error getting metadata: {}", e);
+            }
+        }
+        println!("{} {}",parts[0],parts[1]);
     }
 
 
