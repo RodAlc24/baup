@@ -32,5 +32,6 @@ fn main() {
         options,
     };
     
-    let _ = import::import("/home/imanol/.baup/files.txt",&cli);
+    let r = import::import("/home/imanol/.baup/files.txt",&cli);
+    println!("{:?}",r);
 }

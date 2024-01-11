@@ -5,6 +5,41 @@ use crate::Cli;
 use expanduser;
 use fs_extra::dir;
 
+fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
+    // Expanding user
+    let mut expanded_path = match expanduser::expanduser(path){
+        Ok(path) => path,
+        Err(err) => return Err(format!("Error expanding user: {}", err))
+    };
+    // Removing (if exists) the * at the end
+    if expanded_path.display().to_string().chars().last() == Some('*'){
+        expanded_path.pop();
+    }
+    
+    // Process the first part (file/directory/...)
+    match fs::metadata(expanded_path.display().to_string()){
+        Ok(metadata) => {
+            if metadata.is_file() {
+                let ret: Vec<String> = vec![expanded_path.display().to_string()];
+                return Ok(ret);
+            } else if metadata.is_dir() {
+                let files = fs::read_dir(expanded_path.display().to_string()).unwrap();
+                let mut ret: Vec<String> = vec![String::from("")];
+                ret.pop();
+                for path in files{
+                    ret.push(path.unwrap().path().display().to_string());
+                }
+                return Ok(ret);
+            } else {
+                return Err(format!("Path is neither a file nor a directory"));
+            }
+        }
+        Err(e) => {
+            return Err(format!("Error accessing metadata: {}", e));
+        }
+    }
+}
+
 pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
 
     // Options for copying
@@ -31,39 +66,30 @@ pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
         
-        let mut expanded_path = expanduser::expanduser(parts[0])?;
+        // Get all files in the directory (for copying)
+        let paths = match get_files_from_path(parts[0]){
+            Ok(paths) => paths,
+            Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
+        };
 
-        if expanded_path.display().to_string().chars().last() == Some('*'){
-            expanded_path.pop();
-        }
-        
-        // Process the first part (file/directory/...)
-        match fs::metadata(expanded_path.display().to_string()){
-            Ok(metadata) => {
-                if metadata.is_file() {
-                    println!("It's a file!");
-                } else if metadata.is_dir() {
-                    println!("It's a dir!");
-                    let files = fs::read_dir(expanded_path.display().to_string()).unwrap();
-                    for path in files{
-                        println!("{:?}",path.unwrap().path().display());
-                    }
-                } else {
-                    println!("It's neither a file nor a directory.");
-                }
+        // Getting from locations
+        let from_paths: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
+        // Getting the new location for the files
+        let copy_path = format!("{}{}","/home/imanol/Documents/prueba/",parts[1]);
+        // Creating (if necessary) the directory for the files
+        fs::create_dir_all(copy_path.clone())?;
+        let res = fs_extra::copy_items(&from_paths,copy_path,&options);
+        match res {
+            Ok(_) => {
+                println!("Copy successful!");
             }
-            Err(e) => {
-                eprintln!("Error getting metadata: {}", e);
+            Err(err) => {
+                return Err(io::Error::new(io::ErrorKind::Other, format!("Copy error: {:?}", err)));
             }
         }
-        println!("{} {}",parts[0],parts[1]);
     }
 
 
-    // let mut from_paths = Vec::new();
-    // from_paths.push("/home/imanol/.config/zathura/zathurarc");    
-    // from_paths.push("/home/imanol/.config/helix/");    
-    // let res = fs_extra::copy_items(&from_paths,"/home/imanol/Documents/prueba",&options);
     
     Ok(())
 }
