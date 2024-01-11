@@ -31,7 +31,11 @@ pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
         
-        let expanded_path = expanduser::expanduser(parts[0])?;
+        let mut expanded_path = expanduser::expanduser(parts[0])?;
+
+        if expanded_path.display().to_string().chars().last() == Some('*'){
+            expanded_path.pop();
+        }
         
         // Process the first part (file/directory/...)
         match fs::metadata(expanded_path.display().to_string()){
