@@ -1,6 +1,5 @@
 use std::fs::{File, self};
 use std::io::{self,prelude::*,BufReader};
-use std::process::Command;
 use crate::Cli;
 use expanduser;
 use fs_extra::dir;
