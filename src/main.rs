@@ -8,8 +8,8 @@ mod commands{pub mod import_export;}
 fn main() {
     let arguments = BaupArgs::parse();
 
-    // let r = import_export::import("/home/imanol/.baup/files.txt",&cli);
-    // println!("{:?}",r);
+    let r = commands::import_export::import("/home/imanol/.baup/files.txt");
+    println!("{:?}",r);
 
-    println!("{:?}",arguments);
+    println!("{:?}",arguments.command);
 }

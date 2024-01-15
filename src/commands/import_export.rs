@@ -1,8 +1,8 @@
 use std::fs::{File, self};
 use std::io::{self,prelude::*,BufReader};
-use crate::Cli;
 use expanduser;
 use fs_extra::dir;
+use colored::Colorize;
 
 fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
     // Expanding user
@@ -39,7 +39,7 @@ fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
     }
 }
 
-pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
+pub fn import(file_path : &str) -> io::Result<()> {
 
     // Options for copying
     let options = dir::CopyOptions{
@@ -80,7 +80,7 @@ pub fn import(file_path : &str,cli: &Cli) -> io::Result<()> {
         let res = fs_extra::copy_items(&from_paths,copy_path,&options);
         match res {
             Ok(_) => {
-                println!("Copy successful!");
+                println!("{} Copied {} to {}{}","[OK]".bold().green(),parts[0],"/home/imanol/Documents/prueba/",parts[1]);
             }
             Err(err) => {
                 return Err(io::Error::new(io::ErrorKind::Other, format!("Copy error: {:?}", err)));
