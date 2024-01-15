@@ -10,19 +10,19 @@ pub struct BaupArgs{
 #[derive(Debug, Subcommand)]
 pub enum Command{
     /// Imports the config files to the backup directory
-    import(ImportOptions),
+    Import(ImportOptions),
     /// Exports the config files from the backup directory
-    export,
+    Export,
     /// Compares the files in the backup directory with the original files
-    diff,
+    Diff,
     /// Commits all the changes in the backup directory using git
-    commit,
+    Commit,
     /// Pushes (using git) any commits in the local repository
-    push,
+    Push,
     /// Pulls (using git) any commits to the local repository
-    pull,
+    Pull,
     /// Opens the file in which you specify the import/export paths and names
-    edit,
+    Edit,
 }
 
 #[derive(Debug,Args)]

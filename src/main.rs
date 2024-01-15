@@ -38,6 +38,8 @@ fn main() {
         options,
     };
     
-    let r = import_export::import("/home/imanol/.baup/files.txt",&cli);
-    println!("{:?}",r);
+    // let r = import_export::import("/home/imanol/.baup/files.txt",&cli);
+    // println!("{:?}",r);
+
+    println!("{:?}",arguments);
 }
