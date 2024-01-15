@@ -28,8 +28,8 @@ pub enum Command{
 #[derive(Debug,Args)]
 pub struct ImportOptions{
     /// Imports only one part of the files
-    #[arg(short='p',long="partial")]
-    pub partial: String,
+    #[arg(short='p',long="partial",value_name="DIR",required = false)]
+    pub partial: Option<String>,
 }
 
 #[derive(Debug, Args)]
