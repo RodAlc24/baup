@@ -1,7 +1,7 @@
 use clap::{Args,Parser,Subcommand};
 
 #[derive(Debug,Parser)]
-#[clap(author, version, about)]
+#[clap(author, version, about="An easy way to make backups")]
 pub struct BaupArgs{
     #[clap(subcommand)]
     pub command: Command,
@@ -18,9 +18,9 @@ pub enum Command{
     /// Commits all the changes in the backup directory using git
     Commit(CommitOptions),
     /// Pushes (using git) any commits in the local repository
-    Push,
+    Push(PushOptions),
     /// Pulls (using git) any commits to the local repository
-    Pull,
+    Pull(PullOptions),
     /// Opens the file in which you specify the import/export paths and names
     Edit,
 }
@@ -34,6 +34,20 @@ pub struct ImportOptions{
 
 #[derive(Debug, Args)]
 pub struct CommitOptions {
+    /// Variable number of commit arguments
+    #[arg(num_args = 1.., allow_hyphen_values = true)]
+    pub commit_options: Vec<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct PushOptions {
+    /// Variable number of commit arguments
+    #[arg(num_args = 1.., allow_hyphen_values = true)]
+    pub commit_options: Vec<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct PullOptions {
     /// Variable number of commit arguments
     #[arg(num_args = 1.., allow_hyphen_values = true)]
     pub commit_options: Vec<String>,
