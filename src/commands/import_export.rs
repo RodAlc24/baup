@@ -135,14 +135,26 @@ pub fn export(file_path : &str) -> io::Result<()> {
         }
 
         // Copying files
-        let res = fs_extra::copy_items(&from_paths,expanded_path,&options);
-        match res {
-            Ok(_) => {
-                println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
+        if from_paths.len() > 1 {
+            let res = fs_extra::copy_items(&from_paths,expanded_path,&options);
+            match res {
+                Ok(_) => {
+                    println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
+                }
+                Err(err) => {
+                    println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
+                }
             }
-            Err(err) => {
-                println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
-                println!("Error: {}",err);
+        }
+        else {
+            let res = fs::copy(&from_paths[0], expanded_path);
+            match res {
+                Ok(_) => {
+                    println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
+                }
+                Err(err) => {
+                    println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
+                }
             }
         }
     }
