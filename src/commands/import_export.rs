@@ -79,7 +79,7 @@ pub fn import(file_path : &str) -> io::Result<()> {
         let res = fs_extra::copy_items(&from_paths,copy_path,&options);
         match res {
             Ok(_) => {
-                println!("{} Copied {} to {}{}","[OK]".bold().green(),parts[0],"/home/imanol/Documents/prueba/",parts[1]);
+                println!("{} Copied {} to {}","[OK]".bold().green(),parts[0].bold(),parts[1].bold());
             }
             Err(err) => {
                 return Err(io::Error::new(io::ErrorKind::Other, format!("Copy error: {:?}", err)));
