@@ -40,7 +40,6 @@ fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
 }
 
 pub fn import(file_path : &str) -> io::Result<()> {
-
     // Options for copying
     let options = dir::CopyOptions{
     overwrite: true,
@@ -91,4 +90,35 @@ pub fn import(file_path : &str) -> io::Result<()> {
 
     
     Ok(())
+}
+
+pub fn export(file_path : &str) -> io::Result<()> {
+    // Options for copying
+    let options = dir::CopyOptions{
+    overwrite: true,
+    skip_exist: false,
+    buffer_size: 64000,
+    copy_inside: false,
+    content_only: false,
+    depth: 0,
+    };
+    
+    // Opens file and checks if the file is correctly opened
+    let file = File::open(file_path)?;
+    let reader = BufReader::new(file);
+    
+    // Loop for every line in the file opened
+    for line in reader.lines(){
+        let line = line?;
+        // Check if line is empty or a comment (starts with '#')
+        if line.trim().is_empty() || line.trim().starts_with('#'){
+            continue;
+        }
+        // Divide the line through the ';'
+        let parts: Vec<&str> = line.split(';').collect();
+        
+    }
+
+    Ok(())
+
 }
