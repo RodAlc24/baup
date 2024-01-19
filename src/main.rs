@@ -5,7 +5,7 @@ use args::Com;
 mod args;
 mod commands {
     pub mod import_export;
-    // pub mod git_diff;
+    pub mod git_diff;
 }
 
 // Main function for the program
@@ -28,6 +28,8 @@ fn main() {
 
     // let r = commands::import_export::import("/home/imanol/.baup/files.txt");
     // println!("{:?}",r);
+
+    commands::git_diff::commit("/home/imanol/.baup/files.txt");
 
     // println!("{:?}",arguments.command);
 }
