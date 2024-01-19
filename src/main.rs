@@ -14,7 +14,6 @@ mod commands {
 fn main() {
     // Parse the arguments using the clap utility
     let arguments = BaupArgs::parse();
-
     let _ = match arguments.command {
         Com::Import(options) => commands::import_export::import("/home/imanol/.baup/files.txt",options),
         Com::Export => commands::import_export::export("/home/imanol/.baup/files.txt"),

@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::fs::{File, self};
 use std::io::{self,prelude::*,BufReader};
 use expanduser;
@@ -118,7 +119,32 @@ pub fn export(file_path : &str) -> io::Result<()> {
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
-        
+        let from_paths = match get_files_from_path(&format!("{}{}","/home/imanol/Documents/prueba/",parts[1])) {
+            Ok(paths) => paths,
+            Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
+        };
+
+        // Expanding user
+        let mut expanded_path = match expanduser::expanduser(parts[0]){
+            Ok(path) => path,
+            Err(err) =>return Err(io::Error::new(io::ErrorKind::Other, err)),
+        };
+        // Removing (if exists) the * at the end
+        if expanded_path.display().to_string().chars().last() == Some('*'){
+            expanded_path.pop();
+        }
+
+        // Copying files
+        let res = fs_extra::copy_items(&from_paths,expanded_path,&options);
+        match res {
+            Ok(_) => {
+                println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
+            }
+            Err(err) => {
+                println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
+                println!("Error: {}",err);
+            }
+        }
     }
 
     println!("Export");
