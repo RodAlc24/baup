@@ -1,3 +1,4 @@
+use clap::Command;
 use clap::Parser;
 use args::BaupArgs;
 use args::Com;
@@ -6,6 +7,7 @@ mod args;
 mod commands {
     pub mod import_export;
     pub mod git_diff;
+    pub mod edit_add_rem;
 }
 
 // Main function for the program
@@ -13,23 +15,13 @@ fn main() {
     // Parse the arguments using the clap utility
     let arguments = BaupArgs::parse();
 
-    match arguments.command {
-        Com::Import(options) => println!("Import ; {:?}", options),
-        Com::Export => println!("Export"),
-        Com::Diff => println!("Diff"),
-        Com::Commit(options) => println!("Commit ; {:?}", options),
-        Com::Push(options) => println!("Push ; {:?}", options),
-        Com::Pull(options) => println!("Pull ; {:?}", options),
-        Com::Edit => println!("Edit"),
-    }
-
-    // let output = Command::new("ls").args(["-a"]).current_dir("/home/imanol/.baup").output();
-    // println!("{:?}",String::from_utf8_lossy(&output.unwrap().stdout));
-
-    // let r = commands::import_export::import("/home/imanol/.baup/files.txt");
-    // println!("{:?}",r);
-
-    commands::git_diff::commit("/home/imanol/.baup/files.txt");
-
-    // println!("{:?}",arguments.command);
+    let _ = match arguments.command {
+        Com::Import(options) => commands::import_export::import("/home/imanol/.baup/files.txt",options),
+        Com::Export => commands::import_export::export("/home/imanol/.baup/files.txt"),
+        Com::Diff => commands::git_diff::diff("/home/imanol/.baup/files.txt"),
+        Com::Commit(options) => commands::git_diff::commit("/home/imanol/.baup/files.txt", options),
+        Com::Push(options) => commands::git_diff::push("/home/imanol/.baup/files.txt", options),
+        Com::Pull(options) => commands::git_diff::pull("/home/imanol/.baup/files.txt", options),
+        Com::Edit => commands::edit_add_rem::edit("/home/imanol/.baup/files.txt"),
+    };
 }

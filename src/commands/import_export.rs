@@ -4,6 +4,8 @@ use expanduser;
 use fs_extra::dir;
 use colored::Colorize;
 
+use crate::args::ImportOptions;
+
 fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
     // Expanding user
     let mut expanded_path = match expanduser::expanduser(path){
@@ -39,7 +41,7 @@ fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
     }
 }
 
-pub fn import(file_path : &str) -> io::Result<()> {
+pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions{
     overwrite: true,
@@ -119,6 +121,7 @@ pub fn export(file_path : &str) -> io::Result<()> {
         
     }
 
+    println!("Export");
     Ok(())
 
 }
