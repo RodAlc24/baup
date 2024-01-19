@@ -84,7 +84,7 @@ pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
                 println!("{} Copied {} to {}","[OK]".bold().green(),parts[0].bold(),parts[1].bold());
             }
             Err(err) => {
-                return Err(io::Error::new(io::ErrorKind::Other, format!("Copy error: {:?}", err)));
+                println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[0].bold(),parts[1].bold())
             }
         }
     }
