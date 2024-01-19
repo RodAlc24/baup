@@ -1,9 +1,12 @@
 use clap::Parser;
 use args::BaupArgs;
-use args::Command;
+use args::Com;
 
 mod args;
-mod commands{pub mod import_export;}
+mod commands {
+    pub mod import_export;
+    // pub mod git_diff;
+}
 
 // Main function for the program
 fn main() {
@@ -11,17 +14,20 @@ fn main() {
     let arguments = BaupArgs::parse();
 
     match arguments.command {
-        Command::Import(options) => println!("Import ; {:?}", options),
-        Command::Export => println!("Export"),
-        Command::Diff => println!("Diff"),
-        Command::Commit(options) => println!("Commit ; {:?}", options),
-        Command::Push(options) => println!("Push ; {:?}", options),
-        Command::Pull(options) => println!("Pull ; {:?}", options),
-        Command::Edit => println!("Edit"),
+        Com::Import(options) => println!("Import ; {:?}", options),
+        Com::Export => println!("Export"),
+        Com::Diff => println!("Diff"),
+        Com::Commit(options) => println!("Commit ; {:?}", options),
+        Com::Push(options) => println!("Push ; {:?}", options),
+        Com::Pull(options) => println!("Pull ; {:?}", options),
+        Com::Edit => println!("Edit"),
     }
 
-    let r = commands::import_export::import("/home/imanol/.baup/files.txt");
-    println!("{:?}",r);
+    // let output = Command::new("ls").args(["-a"]).current_dir("/home/imanol/.baup").output();
+    // println!("{:?}",String::from_utf8_lossy(&output.unwrap().stdout));
+
+    // let r = commands::import_export::import("/home/imanol/.baup/files.txt");
+    // println!("{:?}",r);
 
     // println!("{:?}",arguments.command);
 }

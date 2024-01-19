@@ -1,8 +1,8 @@
 use std::fs::{File, self};
 use std::process::Command;
-use Coloref::Colorize;
+use Colored::Colorize;
 
-mod args;
+use crate::args::*;
 
 pub fn commit(file_path: &str, arguments: CommitOptions) -> io::Result<()> {
     let path = Path::new(file_path).parent().to_str();

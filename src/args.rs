@@ -4,11 +4,11 @@ use clap::{Args,Parser,Subcommand};
 #[clap(author, version, about="An easy way to make backups")]
 pub struct BaupArgs{
     #[clap(subcommand)]
-    pub command: Command,
+    pub command: Com,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum Command{
+pub enum Com{
     /// Imports the config files to the backup directory
     Import(ImportOptions),
     /// Exports the config files from the backup directory
