@@ -90,8 +90,6 @@ pub fn pull(file_path: &str, arguments: PullOptions) -> io::Result<()> {
     else {
         println!("{} Directory is not a git repo","[ERROR]".bold().red());
     }
-    
-    println!("{}",String::from_utf8_lossy(&output.stdout));
 
     Ok(())
 }

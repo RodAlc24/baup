@@ -76,7 +76,7 @@ pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
         // Getting from locations
         let from_paths: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
         // Getting the new location for the files
-        let copy_path = format!("{}{}","/home/imanol/Documents/prueba/",parts[1]);
+        let copy_path = format!("{}{}",file_path,parts[1]);
         // Creating (if necessary) the directory for the files
         fs::create_dir_all(copy_path.clone())?;
         let res = fs_extra::copy_items(&from_paths,copy_path,&options);
@@ -119,7 +119,7 @@ pub fn export(file_path : &str) -> io::Result<()> {
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
-        let from_paths = match get_files_from_path(&format!("{}{}","/home/imanol/Documents/prueba/",parts[1])) {
+        let from_paths = match get_files_from_path(&format!("{}{}",file_path,parts[1])) {
             Ok(paths) => paths,
             Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
         };
