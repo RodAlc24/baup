@@ -22,13 +22,13 @@ pub fn commit(file_path: &str, arguments: CommitOptions) -> io::Result<()> {
     if repo == true {
         // Creates the commit
         let _ = Command::new("git").args(["add","."]).current_dir(path).output();
-        let output = Command::new("git").arg("commit").args(arguments.commit_options).current_dir(path).output().unwrap();
-        if output.status.success() {
+        let output = Command::new("git").arg("commit").args(arguments.commit_options).current_dir(path).status().unwrap();
+        if output.success() {
             println!("{} Created commit successfully","[OK]".bold().green());
         }
         else {
             println!("{} Couldn't create commit","[ERROR]".bold().red());
-            println!("Error: {}",String::from_utf8(output.stderr).unwrap());
+            println!("Error: {:?}",output);
         }
     }
     else {
