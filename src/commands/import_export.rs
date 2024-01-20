@@ -1,6 +1,6 @@
-use std::fmt::format;
 use std::fs::{File, self};
 use std::io::{self,prelude::*,BufReader};
+use std::path::Path;
 use expanduser;
 use fs_extra::dir;
 use colored::Colorize;
@@ -57,6 +57,12 @@ pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
     let file = File::open(file_path)?;
     let reader = BufReader::new(file);
     
+    // Get path from the file_path str
+    let file_path = match Path::new(file_path).parent(){
+        Some(path) => path,
+        None => return Err(io::Error::new(io::ErrorKind::Other,format!("Error getting the path for the backup"))) ,
+    };
+
     // Loop for every line in the file opened
     for line in reader.lines(){
         let line = line?;
@@ -76,7 +82,7 @@ pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
         // Getting from locations
         let from_paths: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
         // Getting the new location for the files
-        let copy_path = format!("{}{}",file_path,parts[1]);
+        let copy_path = format!("{}/{}",file_path.display(),parts[1]);
         // Creating (if necessary) the directory for the files
         fs::create_dir_all(copy_path.clone())?;
         let res = fs_extra::copy_items(&from_paths,copy_path,&options);
@@ -110,6 +116,12 @@ pub fn export(file_path : &str) -> io::Result<()> {
     let file = File::open(file_path)?;
     let reader = BufReader::new(file);
     
+    // Get path from the file_path str
+    let file_path = match Path::new(file_path).parent(){
+        Some(path) => path,
+        None => return Err(io::Error::new(io::ErrorKind::Other,format!("Error getting the path for the backup"))) ,
+    };
+
     // Loop for every line in the file opened
     for line in reader.lines(){
         let line = line?;
@@ -119,7 +131,7 @@ pub fn export(file_path : &str) -> io::Result<()> {
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
-        let from_paths = match get_files_from_path(&format!("{}{}",file_path,parts[1])) {
+        let from_paths = match get_files_from_path(&format!("{}/{}",file_path.display(),parts[1])) {
             Ok(paths) => paths,
             Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
         };

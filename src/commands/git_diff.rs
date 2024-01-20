@@ -1,7 +1,6 @@
-use std::fs::{File, self};
 use std::process::Command;
 use std::path::Path;
-use std::io::{self,prelude::*,BufReader};
+use std::io::{self};
 use colored::Colorize;
 
 use crate::args::*;

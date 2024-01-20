@@ -1,0 +1,4 @@
+filter_title: "hx"
+
+extra_includes:
+  - "../match/_latex.yml"

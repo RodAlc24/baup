@@ -1,0 +1,8 @@
+[[language]]
+name = "c"
+auto-format = true
+
+[[language]]
+name = "latex"
+# config = { texlab = { build = { onSave = true } } }
+

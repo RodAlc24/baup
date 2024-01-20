@@ -1,0 +1,24 @@
+# Open document in fit-width mode by default
+set adjust-open "best-fit"
+
+# One page per row by default
+set pages-per-row 1
+
+#stop at page boundries
+set scroll-page-aware "true"
+set scroll-full-overlap 0.01
+set scroll-step 100
+
+# Set Clipboard
+set selection-clipboard clipboard
+
+# Toggle light/dark mode
+map <C-i> recolor
+
+# Map "f" to fullscreen
+unmap f
+map f toggle_fullscreen
+map [fullscreen] f toggle_fullscreen
+
+# Set highlight color
+set highlight-color "#65C8F0" # yellow
