@@ -42,7 +42,7 @@ fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
     }
 }
 
-pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
+pub fn import(file_path : &str, import_options: ImportOptions) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions{
     overwrite: true,
@@ -72,6 +72,13 @@ pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
+        
+        // Checks for the partial flag
+        if let Some(ref partial) = import_options.partial {
+            if partial.ne(parts[1]) {
+            continue;
+            }
+        }
         
         // Get all files in the directory (for copying)
         let paths = match get_files_from_path(parts[0]){
