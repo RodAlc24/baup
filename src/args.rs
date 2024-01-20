@@ -12,7 +12,7 @@ pub enum Com{
     /// Imports the config files to the backup directory
     Import(ImportOptions),
     /// Exports the config files from the backup directory
-    Export,
+    Export(ExportOptions),
     /// Compares the files in the backup directory with the original files
     Diff,
     /// Commits all the changes in the backup directory using git
@@ -28,7 +28,14 @@ pub enum Com{
 #[derive(Debug,Args)]
 pub struct ImportOptions{
     /// Imports only one part of the files
-    #[arg(short='p',long="partial",value_name="DIR",required = false)]
+    #[arg(short = 'p',long = "partial",value_name = "DIR",required = false)]
+    pub partial: Option<String>,
+}
+
+#[derive(Debug,Args)]
+pub struct ExportOptions{
+    /// Exports only one part of the files
+    #[arg(short = 'p',long = "partial",value_name = "DIR",required = false)]
     pub partial: Option<String>,
 }
 

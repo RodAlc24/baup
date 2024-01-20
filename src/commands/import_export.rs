@@ -1,11 +1,13 @@
-use std::fs::{File, self};
-use std::io::{self,prelude::*,BufReader};
-use std::path::Path;
+use std::{
+    fs::{File, self},
+    io::{self,prelude::*,BufReader},
+    path::Path,
+};
 use expanduser;
 use fs_extra::dir;
 use colored::Colorize;
 
-use crate::args::ImportOptions;
+use crate::args::{ImportOptions, ExportOptions};
 
 fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
     // Expanding user
@@ -109,7 +111,7 @@ pub fn import(file_path : &str, import_options: ImportOptions) -> io::Result<()>
     Ok(())
 }
 
-pub fn export(file_path : &str) -> io::Result<()> {
+pub fn export(file_path : &str, export_options: ExportOptions) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions{
     overwrite: true,
@@ -144,6 +146,13 @@ pub fn export(file_path : &str) -> io::Result<()> {
             Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
         };
 
+        // Checks for the partial flag
+        if let Some(ref partial) = export_options.partial {
+            if partial.ne(parts[1]) {
+            continue;
+            }
+        }
+        
         // Expanding user
         let mut expanded_path = match expanduser::expanduser(parts[0]){
             Ok(path) => path,
@@ -153,9 +162,6 @@ pub fn export(file_path : &str) -> io::Result<()> {
         if expanded_path.display().to_string().chars().last() == Some('*'){
             expanded_path.pop();
         }
-
-        // Creating (if necessary) the directory for the files
-        fs::create_dir_all(expanded_path.clone())?;
 
         // Copying files
         match fs::metadata(expanded_path.display().to_string()){

@@ -15,7 +15,7 @@ fn main() {
     let arguments = BaupArgs::parse();
     let _ = match arguments.command {
         Com::Import(options) => commands::import_export::import("/home/imanol/.baup/files.txt",options),
-        Com::Export => commands::import_export::export("/home/imanol/.baup/files.txt"),
+        Com::Export(options) => commands::import_export::export("/home/imanol/.baup/files.txt",options),
         Com::Diff => commands::git_diff::diff("/home/imanol/.baup/files.txt"),
         Com::Commit(options) => commands::git_diff::commit("/home/imanol/.baup/files.txt", options),
         Com::Push(options) => commands::git_diff::push("/home/imanol/.baup/files.txt", options),
