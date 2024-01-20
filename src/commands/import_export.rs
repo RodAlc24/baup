@@ -1,3 +1,4 @@
+use std::fmt::format;
 use std::fs::{File, self};
 use std::io::{self,prelude::*,BufReader};
 use std::path::Path;
@@ -150,7 +151,9 @@ pub fn export(file_path : &str) -> io::Result<()> {
         match fs::metadata(expanded_path.display().to_string()){
             Ok(metadata) => {
                 if metadata.is_file() {
-                    let res = fs::copy(&from_paths[0], expanded_path.display().to_string());
+                    let filename = Path::new(parts[0]).file_name().unwrap().to_str();
+                    let filename = format!("{}/{}/{}",file_path.display(),parts[1],filename.unwrap());
+                    let res = fs::copy(filename, expanded_path.display().to_string());
                     match res {
                         Ok(_) => {
                             println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
