@@ -150,7 +150,7 @@ pub fn export(file_path : &str) -> io::Result<()> {
         match fs::metadata(expanded_path.display().to_string()){
             Ok(metadata) => {
                 if metadata.is_file() {
-                    let res = fs::copy(&from_paths[0], expanded_path);
+                    let res = fs::copy(&from_paths[0], expanded_path.display().to_string());
                     match res {
                         Ok(_) => {
                             println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
