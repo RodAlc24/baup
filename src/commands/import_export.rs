@@ -135,31 +135,40 @@ pub fn export(file_path : &str) -> io::Result<()> {
         }
 
         // Copying files
-        if from_paths.len() > 1 {
-            let res = fs_extra::copy_items(&from_paths,expanded_path,&options);
-            match res {
-                Ok(_) => {
-                    println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
-                }
-                Err(err) => {
-                    println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
+        match fs::metadata(expanded_path.display().to_string()){
+            Ok(metadata) => {
+                if metadata.is_file() {
+                    let res = fs::copy(&from_paths[0], expanded_path);
+                    match res {
+                        Ok(_) => {
+                            println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
+                        }
+                        Err(err) => {
+                            println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
+                            println!("Error: {}",err);
+                        }
+                    }
+                } else if metadata.is_dir() {
+                    let res = fs_extra::copy_items(&from_paths,expanded_path,&options);
+                    match res {
+                        Ok(_) => {
+                            println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
+                        }
+                        Err(err) => {
+                            println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
+                            println!("Error: {}",err);
+                        }
+                    }
+                } else {
+                    println!("{} {} is not a file nor a directory","[ERROR]".bold().red(),parts[1].bold());
                 }
             }
-        }
-        else {
-            let res = fs::copy(&from_paths[0], expanded_path);
-            match res {
-                Ok(_) => {
-                    println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
-                }
-                Err(err) => {
-                    println!("{} Couldn't copy {} to {}","[ERROR]".bold().red(),parts[1].bold(),parts[0].bold());
-                }
+            Err(err) => {
+                return Err(io::Error::new(io::ErrorKind::Other, err));
             }
         }
     }
 
-    println!("Export");
     Ok(())
 
 }
