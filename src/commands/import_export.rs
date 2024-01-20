@@ -85,6 +85,7 @@ pub fn import(file_path : &str, options: ImportOptions) -> io::Result<()> {
         let copy_path = format!("{}/{}",file_path.display(),parts[1]);
         // Creating (if necessary) the directory for the files
         fs::create_dir_all(copy_path.clone())?;
+        // Copying the files
         let res = fs_extra::copy_items(&from_paths,copy_path,&options);
         match res {
             Ok(_) => {
@@ -145,6 +146,9 @@ pub fn export(file_path : &str) -> io::Result<()> {
         if expanded_path.display().to_string().chars().last() == Some('*'){
             expanded_path.pop();
         }
+
+        // Creating (if necessary) the directory for the files
+        fs::create_dir_all(expanded_path.clone())?;
 
         // Copying files
         match fs::metadata(expanded_path.display().to_string()){
