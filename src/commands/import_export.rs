@@ -24,12 +24,12 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
     };
 
     // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(config.path.clone())?;
-    let file = File::open(config_file_expanded)?;
+    let config_file_expanded = expanduser::expanduser(&config.path)?;
+    let file = File::open(config_file_expanded.clone())?;
     let reader = BufReader::new(file);
 
     // Get path from the file_path str
-    let file_path = match Path::new(&config.path).parent() {
+    let file_path = match Path::new(&config_file_expanded).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
@@ -118,12 +118,12 @@ pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
     };
 
     // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(config.path.clone())?;
-    let file = File::open(config_file_expanded)?;
+    let config_file_expanded = expanduser::expanduser(&config.path)?;
+    let file = File::open(config_file_expanded.clone())?;
     let reader = BufReader::new(file);
 
     // Get path from the file_path str
-    let file_path = match Path::new(&config.path).parent() {
+    let file_path = match Path::new(&config_file_expanded).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
