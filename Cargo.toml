@@ -1,6 +1,6 @@
 [package]
 name = "baup"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2021"
 authors = ["Imanol Ciganda"]
 description = "Easy CLI tool for creating backups of files"
@@ -12,3 +12,5 @@ fs_extra = "1.2"
 expanduser = "1.2.2"
 clap = { version = "4.4.16", features = ["derive"]}
 colored = "2.1.0"
+serde = { version = "1.0.195", features = ["derive"]}
+toml = "0.8.8"
