@@ -2,49 +2,16 @@ use std::{
     fs::{File, self},
     io::{self,prelude::*,BufReader},
     path::Path,
+    process::Command,
 };
 use expanduser;
 use fs_extra::dir;
 use colored::Colorize;
 
-use crate::args::{ImportOptions, ExportOptions};
+use crate::args::{ImportOptions, ExportOptions, CommitOptions};
+use crate::commands::git_diff;
 
-fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
-    // Expanding user
-    let mut expanded_path = match expanduser::expanduser(path){
-        Ok(path) => path,
-        Err(err) => return Err(format!("Error expanding user: {}", err))
-    };
-    // Removing (if exists) the * at the end
-    if expanded_path.display().to_string().chars().last() == Some('*'){
-        expanded_path.pop();
-    }
-    
-    // Process the first part (file/directory/...)
-    match fs::metadata(expanded_path.display().to_string()){
-        Ok(metadata) => {
-            if metadata.is_file() {
-                let ret: Vec<String> = vec![expanded_path.display().to_string()];
-                return Ok(ret);
-            } else if metadata.is_dir() {
-                let files = fs::read_dir(expanded_path.display().to_string()).unwrap();
-                let mut ret: Vec<String> = vec![String::from("")];
-                ret.pop();
-                for path in files{
-                    ret.push(path.unwrap().path().display().to_string());
-                }
-                return Ok(ret);
-            } else {
-                return Err(format!("Path is neither a file nor a directory"));
-            }
-        }
-        Err(e) => {
-            return Err(format!("Error accessing metadata: {}", e));
-        }
-    }
-}
-
-pub fn import(file_path : &str, import_options: ImportOptions) -> io::Result<()> {
+pub fn import(config_file_path : &str, import_options: ImportOptions) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions{
     overwrite: true,
@@ -56,11 +23,11 @@ pub fn import(file_path : &str, import_options: ImportOptions) -> io::Result<()>
     };
     
     // Opens file and checks if the file is correctly opened
-    let file = File::open(file_path)?;
+    let file = File::open(config_file_path)?;
     let reader = BufReader::new(file);
     
     // Get path from the file_path str
-    let file_path = match Path::new(file_path).parent(){
+    let file_path = match Path::new(config_file_path).parent(){
         Some(path) => path,
         None => return Err(io::Error::new(io::ErrorKind::Other,format!("Error getting the path for the backup"))) ,
     };
@@ -106,7 +73,17 @@ pub fn import(file_path : &str, import_options: ImportOptions) -> io::Result<()>
         }
     }
 
-
+    // Create the commit if the auto-commit option is enabled
+    if import_options.auto_commit {
+        let commit_msg = get_changed_files(&file_path.display().to_string());
+        if commit_msg.ne(""){
+            let options = CommitOptions {commit_options : vec![String::from("-m"),commit_msg]};
+            git_diff::commit(config_file_path, options)?;
+        }
+        else {
+            println!("{} There are no changes to commit","[OK]".bold().green());
+        }
+    }
     
     Ok(())
 }
@@ -207,4 +184,69 @@ pub fn export(file_path : &str, export_options: ExportOptions) -> io::Result<()>
 
     Ok(())
 
+}
+
+fn get_files_from_path(path: &str) -> Result<Vec<String>, String>{
+    // Expanding user
+    let mut expanded_path = match expanduser::expanduser(path){
+        Ok(path) => path,
+        Err(err) => return Err(format!("Error expanding user: {}", err))
+    };
+    // Removing (if exists) the * at the end
+    if expanded_path.display().to_string().chars().last() == Some('*'){
+        expanded_path.pop();
+    }
+    
+    // Process the first part (file/directory/...)
+    match fs::metadata(expanded_path.display().to_string()){
+        Ok(metadata) => {
+            if metadata.is_file() {
+                let ret: Vec<String> = vec![expanded_path.display().to_string()];
+                return Ok(ret);
+            } else if metadata.is_dir() {
+                let files = fs::read_dir(expanded_path.display().to_string()).unwrap();
+                let mut ret: Vec<String> = vec![String::from("")];
+                ret.pop();
+                for path in files{
+                    ret.push(path.unwrap().path().display().to_string());
+                }
+                return Ok(ret);
+            } else {
+                return Err(format!("Path is neither a file nor a directory"));
+            }
+        }
+        Err(e) => {
+            return Err(format!("Error accessing metadata: {}", e));
+        }
+    }
+}
+
+fn get_changed_files(directory : &str) -> String{
+    // Get the changed files
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg("git diff --name-only HEAD")
+        .current_dir(directory)
+        .output()
+        .expect("Failed to execute command");
+    
+    // Get an array with all the files with changes
+    let changed_files = String::from_utf8(output.stdout).unwrap();
+    let files : Vec<&str> = changed_files.split('\n').collect();
+
+    // Process the first three filenames
+    let mut result = String::new();
+
+    for file in files.iter().take(3) {
+        result.push_str(file);
+        result.push_str(" ; ");
+    }
+
+    // If there are more than 3 files, append "..."
+    if files.len() > 3 {
+        result.push_str("...");
+    }
+
+    return result.trim_end_matches(" ; ").to_string();
+    
 }

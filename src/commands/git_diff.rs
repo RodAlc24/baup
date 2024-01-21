@@ -1,6 +1,8 @@
-use std::process::Command;
-use std::path::Path;
-use std::io::{self};
+use std::{
+    process::Command,
+    path::Path,
+    io::{self},
+};
 use colored::Colorize;
 
 use crate::args::*;

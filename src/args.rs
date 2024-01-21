@@ -30,6 +30,9 @@ pub struct ImportOptions{
     /// Imports only one part of the files
     #[arg(short = 'p',long = "partial",value_name = "DIR",required = false)]
     pub partial: Option<String>,
+    /// Automatically creates a commit with the name of the files that have changes
+    #[arg(short = 'c',long = "auto-commit", required = false)]
+    pub auto_commit: bool,
 }
 
 #[derive(Debug,Args)]
