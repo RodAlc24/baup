@@ -167,9 +167,12 @@ pub fn export(file_path : &str, export_options: ExportOptions) -> io::Result<()>
         match fs::metadata(expanded_path.display().to_string()){
             Ok(metadata) => {
                 if metadata.is_file() {
-                    let filename = Path::new(parts[0]).file_name().unwrap().to_str();
-                    let filename = format!("{}/{}/{}",file_path.display(),parts[1],filename.unwrap());
-                    let res = fs::copy(filename, expanded_path.display().to_string());
+                    // Get file location
+                    let filename = Path::new(parts[0]);
+                    let from_path = format!("{}/{}/{}",file_path.display(),parts[1],filename.file_name().unwrap().to_str().unwrap());
+                    // Creating, if necessary the directory for the file
+                    fs::create_dir_all(filename.parent().unwrap())?;
+                    let res = fs::copy(from_path, expanded_path.display().to_string());
                     match res {
                         Ok(_) => {
                             println!("{} Copied {} to {}","[OK]".bold().green(),parts[1].bold(),parts[0].bold());
@@ -180,6 +183,8 @@ pub fn export(file_path : &str, export_options: ExportOptions) -> io::Result<()>
                         }
                     }
                 } else if metadata.is_dir() {
+                    // Creating, if necessary the directory for the file
+                    fs::create_dir_all(expanded_path.clone())?;
                     let res = fs_extra::copy_items(&from_paths,expanded_path,&options);
                     match res {
                         Ok(_) => {
