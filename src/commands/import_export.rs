@@ -39,6 +39,17 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
         }
     };
 
+    // Executes the hook (if exists)
+    let config_hooks = config.hooks.as_ref().unwrap();
+    if config_hooks.import_hook != None {
+        let hook_file =
+            expanduser::expanduser(config_hooks.import_hook.as_ref().unwrap().to_string()).unwrap();
+        Command::new("sh")
+            .arg(hook_file)
+            .status()
+            .expect("Error executing the hook");
+    }
+
     // Loop for every line in the file opened
     for line in reader.lines() {
         let line = line?;
@@ -132,6 +143,17 @@ pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
             ))
         }
     };
+
+    // Executes the hook (if exists)
+    let config_hooks = config.hooks.as_ref().unwrap();
+    if config_hooks.export_hook != None {
+        let hook_file =
+            expanduser::expanduser(config_hooks.export_hook.as_ref().unwrap().to_string()).unwrap();
+        Command::new("sh")
+            .arg(hook_file)
+            .status()
+            .expect("Error executing the hook");
+    }
 
     // Loop for every line in the file opened
     for line in reader.lines() {

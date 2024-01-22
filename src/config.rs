@@ -11,8 +11,8 @@ pub struct Config {
 
 #[derive(Deserialize, Debug)]
 pub struct Hooks {
-    import_hook: Option<String>,
-    export_hook: Option<String>,
+    pub import_hook: Option<String>,
+    pub export_hook: Option<String>,
 }
 
 impl Config {
