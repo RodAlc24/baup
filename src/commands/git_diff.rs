@@ -19,7 +19,8 @@ fn check_if_git_repo(path: &Path) -> bool {
 
 pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let path = match Path::new(&config.path).parent() {
+    let config_path = &config.path.unwrap().clone();
+    let path = match Path::new(config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
@@ -58,7 +59,8 @@ pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
 
 pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let path = match Path::new(&config.path).parent() {
+    let config_path = &config.path.unwrap().clone();
+    let path = match Path::new(config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
@@ -93,7 +95,8 @@ pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
 
 pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let path = match Path::new(&config.path).parent() {
+    let config_path = &config.path.unwrap().clone();
+    let path = match Path::new(config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(

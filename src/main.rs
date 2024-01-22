@@ -17,7 +17,7 @@ fn main() {
 
     // Parse the arguments using the clap utility
     let arguments = BaupArgs::parse();
-    let r = match arguments.command {
+    let _r = match arguments.command {
         Com::Import(options) => commands::import_export::import(config, options),
         Com::Export(options) => commands::import_export::export(config, options),
         Com::Diff => commands::git_diff::diff(config),
@@ -26,5 +26,4 @@ fn main() {
         Com::Pull(options) => commands::git_diff::pull(config, options),
         Com::Edit => commands::edit_add_rem::edit(config),
     };
-    println!("{:?}", r);
 }

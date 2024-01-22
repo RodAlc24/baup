@@ -24,7 +24,7 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
     };
 
     // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(&config.path)?;
+    let config_file_expanded = expanduser::expanduser(&config.path.as_ref().unwrap())?;
     let file = File::open(config_file_expanded.clone())?;
     let reader = BufReader::new(file);
 
@@ -91,7 +91,7 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
     }
 
     // Create the commit if the auto-commit option is enabled
-    if import_options.auto_commit || config.auto_commit {
+    if import_options.auto_commit || config.auto_commit.unwrap().clone() {
         let commit_msg = get_changed_files(&file_path.display().to_string());
         if commit_msg.ne("") {
             let options = CommitOptions {
@@ -118,7 +118,7 @@ pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
     };
 
     // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(&config.path)?;
+    let config_file_expanded = expanduser::expanduser(&config.path.unwrap().as_str())?;
     let file = File::open(config_file_expanded.clone())?;
     let reader = BufReader::new(file);
 
