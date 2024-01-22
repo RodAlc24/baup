@@ -91,7 +91,7 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
     }
 
     // Create the commit if the auto-commit option is enabled
-    if import_options.auto_commit {
+    if import_options.auto_commit || config.auto_commit {
         let commit_msg = get_changed_files(&file_path.display().to_string());
         if commit_msg.ne("") {
             let options = CommitOptions {
@@ -156,13 +156,22 @@ pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
         }
 
         // Expanding user
-        let mut expanded_path = match expanduser::expanduser(parts[0]) {
+        let expanded_path = match expanduser::expanduser(parts[0]) {
             Ok(path) => path,
             Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
         };
-        // Removing (if exists) the * at the end
-        if expanded_path.display().to_string().chars().last() == Some('*') {
-            expanded_path.pop();
+
+        let is_dir = expanded_path.display().to_string().chars().last().unwrap();
+
+        // Creating, if necessary, the directory for the file or directory
+        if !expanded_path.exists() {
+            if is_dir == '/' {
+                println!("d");
+                fs::create_dir_all(&expanded_path)?;
+            } else {
+                fs::create_dir_all(Path::new(&expanded_path).parent().unwrap())?;
+                File::create(&expanded_path)?;
+            }
         }
 
         // Copying files
@@ -177,8 +186,6 @@ pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
                         parts[1],
                         filename.file_name().unwrap().to_str().unwrap()
                     );
-                    // Creating, if necessary the directory for the file
-                    fs::create_dir_all(filename.parent().unwrap())?;
                     let res = fs::copy(from_path, expanded_path.display().to_string());
                     match res {
                         Ok(_) => {
@@ -241,14 +248,10 @@ pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
 
 fn get_files_from_path(path: &str) -> Result<Vec<String>, String> {
     // Expanding user
-    let mut expanded_path = match expanduser::expanduser(path) {
+    let expanded_path = match expanduser::expanduser(path) {
         Ok(path) => path,
         Err(err) => return Err(format!("Error expanding user: {}", err)),
     };
-    // Removing (if exists) the * at the end
-    if expanded_path.display().to_string().chars().last() == Some('*') {
-        expanded_path.pop();
-    }
 
     // Process the first part (file/directory/...)
     match fs::metadata(expanded_path.display().to_string()) {
