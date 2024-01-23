@@ -4,9 +4,12 @@ use std::fs;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
-    pub path: Option<String>,
-    pub auto_commit: Option<bool>,
-    pub hooks: Option<Hooks>,
+    #[serde(default = "default_path")]
+    pub path: String,
+    #[serde(default = "default_auto_commit")]
+    pub auto_commit: bool,
+    #[serde(default = "default_hooks")]
+    pub hooks: Hooks,
 }
 
 #[derive(Deserialize, Debug)]
@@ -18,14 +21,29 @@ pub struct Hooks {
 impl Config {
     fn default_config() -> Config {
         Config {
-            path: Some("~/.baup/files.txt".to_string()),
-            auto_commit: Some(false),
-            hooks: Some(Hooks {
+            path: "~/.baup/files.txt".to_string(),
+            auto_commit: false,
+            hooks: Hooks {
                 import_hook: None,
                 export_hook: None,
-            }),
+            },
         }
     }
+}
+
+fn default_path() -> String {
+    return "~/.baup/files.txt".to_string();
+}
+
+fn default_auto_commit() -> bool {
+    return false;
+}
+
+fn default_hooks() -> Hooks {
+    return Hooks {
+        import_hook: None,
+        export_hook: None,
+    };
 }
 
 pub fn get_config() -> Config {
@@ -40,26 +58,5 @@ pub fn get_config() -> Config {
         Err(_) => Config::default_config(),
     };
 
-    let loaded_hooks = loaded_config.hooks.unwrap_or(Hooks {
-        import_hook: None,
-        export_hook: None,
-    });
-
-    let default_config = Config::default_config();
-    let config = Config {
-        path: match loaded_config.path {
-            Some(path) => Some(path),
-            None => default_config.path,
-        },
-        auto_commit: match loaded_config.auto_commit {
-            Some(auto_commit) => Some(auto_commit),
-            None => default_config.auto_commit,
-        },
-        hooks: Some(Hooks {
-            import_hook: loaded_hooks.import_hook.clone(),
-            export_hook: loaded_hooks.export_hook.clone(),
-        }),
-    };
-
-    config
+    loaded_config
 }

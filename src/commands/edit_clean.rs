@@ -4,7 +4,7 @@ use crate::config::Config;
 
 pub fn edit(config: Config) -> io::Result<()> {
     // Expanding user
-    let expanded_path = match expanduser::expanduser(&config.path.unwrap()) {
+    let expanded_path = match expanduser::expanduser(&config.path) {
         Ok(path) => path,
         Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
     };

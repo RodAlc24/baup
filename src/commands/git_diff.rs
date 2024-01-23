@@ -21,7 +21,7 @@ fn check_if_git_repo(path: &Path) -> bool {
 
 pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = expanduser::expanduser(&config.path.unwrap().clone())?;
+    let config_path = expanduser::expanduser(&config.path)?;
     let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
@@ -61,7 +61,7 @@ pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
 
 pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = expanduser::expanduser(&config.path.unwrap().clone())?;
+    let config_path = expanduser::expanduser(&config.path)?;
     let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
@@ -97,7 +97,7 @@ pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
 
 pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = expanduser::expanduser(&config.path.unwrap().clone())?;
+    let config_path = expanduser::expanduser(&config.path)?;
     let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
