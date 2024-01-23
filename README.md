@@ -54,6 +54,9 @@ Moreover, the command counts with this options to optimize your workflow:
 
 ### Export
 
+This command has the oposite function as import, copying the files from the backups folder to their original locations.
+The export command counts, as import did, with the partial (-p,--partial) option for exporting only one part of the files.
+
 ### Commit
 
 ### Push
