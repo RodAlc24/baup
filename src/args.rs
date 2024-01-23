@@ -13,8 +13,6 @@ pub enum Com {
     Import(ImportOptions),
     /// Exports the config files from the backup directory
     Export(ExportOptions),
-    /// Compares the files in the backup directory with the original files
-    Diff,
     /// Commits all the changes in the backup directory using git
     Commit(CommitOptions),
     /// Pushes (using git) any commits in the local repository
@@ -23,6 +21,8 @@ pub enum Com {
     Pull(PullOptions),
     /// Opens the file in which you specify the import/export paths and names
     Edit,
+    /// Compares the files in the backup directory with the original files
+    Diff,
 }
 
 #[derive(Debug, Args)]
