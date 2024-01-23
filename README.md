@@ -11,14 +11,14 @@ The project uses a configurable file to determine which files it needs to backup
 To install the utility, follow the next instructions:
 
 1. Clone the repository in your machine
-2. Using cargo/rustc compile the project with the following command: 'cargo build --release'
-3. Create a symbolic link using: 'sudo ln -s /path/to/executable /usr/bin/baup'
+2. Using cargo/rustc compile the project with the following command: ´cargo build --release´
+3. Create a symbolic link using: ´sudo ln -s /path/to/executable /usr/bin/baup´
 
-Alternatively, you can install the utility running the command: 'sudo sh install.sh'
+Alternatively, you can install the utility running the command: ´sudo sh install.sh´
 
 ## Setup
 
 Before starting to use the utility, you need to setup the auxiliar file.
-You can create it manually, or run 'baup edit' for creating and editing it.
+You can create it manually, or run ´baup edit´ for creating and editing it.
 
 This file requires a very specific syntax for working properly
