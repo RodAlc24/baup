@@ -59,17 +59,44 @@ The export command counts, as import did, with the partial (-p,--partial) option
 
 ### Commit
 
+Using git, this command commits the changes made in the backups repository.
+Any options that you write after baup will be passed as arguments to the git commit command.
+
+For example, if you ran `baup commit -m "Test"`, the program will `git add .` and `git commit -m "Test"`
+
 ### Push
+
+As the commit command did, push uses git to push all the commits made in the repository.
+Also, the push command will pass any arguments to the git command.
 
 ### Pull
 
+This command works exactly the same as push or commit, but for pulling any changes to the local repository from the remote repository.
+
 ### Edit
+
+The edit command will (using your default editor saved in $EDITOR) open the backups file for you to change it in any way you need.
 
 ### Diff
 
 ## Configuration
 
+The program can be configured using a configuration file. This file will be located in `~/.config/baup/config.toml`.
+The values that can be changed are the following:
 
+* **path** -> The path to the backups file (`~/.baup/files.txt` for default)
+* **auto_commit** -> Works exactly the same as the auto-commit option for the import command (false for default)
+* **import_hook** -> A script that will be execute it before any files are imported (None for default)
+* **import_hook** -> A script that will be execute it before any files are exported (None for default)
+
+An example configuration file can be:
+```
+path = "~/Documents/baup/files.txt"
+
+[hooks]
+import_hook="~/.config/baup/hooks/import.sh"
+```
+As you can see in the example, you don't need to set all the values in the config file for it to work
 
 ## Contributors
  - RodAlc24
