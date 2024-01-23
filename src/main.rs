@@ -5,7 +5,7 @@ use clap::Parser;
 mod args;
 mod config;
 mod commands {
-    pub mod edit_add_rem;
+    pub mod edit_clean;
     pub mod git_diff;
     pub mod import_export;
 }
