@@ -12,15 +12,17 @@ fn check_if_git_repo(path: &Path) -> bool {
     let output = Command::new("git")
         .args(["rev-parse", "--is-inside-work-tree"])
         .current_dir(path)
-        .output()
-        .unwrap();
-    String::from_utf8_lossy(&output.stdout).eq(&String::from("true\n"))
+        .output();
+    match output {
+        Ok(output) => return String::from_utf8_lossy(&output.stdout).eq(&String::from("true\n")),
+        Err(_) => return false,
+    }
 }
 
 pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = &config.path.unwrap().clone();
-    let path = match Path::new(config_path).parent() {
+    let config_path = expanduser::expanduser(&config.path.unwrap().clone())?;
+    let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
@@ -59,8 +61,8 @@ pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
 
 pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = &config.path.unwrap().clone();
-    let path = match Path::new(config_path).parent() {
+    let config_path = expanduser::expanduser(&config.path.unwrap().clone())?;
+    let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
@@ -78,13 +80,13 @@ pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
             .arg("push")
             .args(arguments.commit_options)
             .current_dir(path)
-            .output()
+            .status()
             .unwrap();
-        if output.status.success() {
+        if output.success() {
             println!("{} Pushed successfully", "[OK]".bold().green());
         } else {
             println!("{} Couldn't pushed successfully", "[ERROR]".bold().red());
-            println!("Error: {}", String::from_utf8(output.stderr).unwrap());
+            println!("Error: {}", output);
         }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
@@ -95,8 +97,8 @@ pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
 
 pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = &config.path.unwrap().clone();
-    let path = match Path::new(config_path).parent() {
+    let config_path = expanduser::expanduser(&config.path.unwrap().clone())?;
+    let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
@@ -114,13 +116,13 @@ pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
             .arg("pull")
             .args(arguments.commit_options)
             .current_dir(path)
-            .output()
+            .status()
             .unwrap();
-        if output.status.success() {
+        if output.success() {
             println!("{} Pulled successfully", "[OK]".bold().green());
         } else {
             println!("{} Couldn't pulled successfully", "[ERROR]".bold().red());
-            println!("Error: {}", String::from_utf8(output.stderr).unwrap());
+            println!("Error: {}", output);
         }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
