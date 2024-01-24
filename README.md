@@ -77,7 +77,18 @@ This command works exactly the same as push or commit, but for pulling any chang
 
 The edit command will (using your default editor saved in $EDITOR) open the backups file for you to change it in any way you need.
 
+This command counts with a config (-c,--config) flag for opening (and creating if necessary) the configuration file
+
 ### Diff
+
+TODO
+
+### Clear
+
+The clear command deletes the subdirectories of the backups directory.
+This command counts with partial flag for only deleting a subdirectory with the name passed as argument.
+
+Note: Using the partial flag you can delete any subdirectories, not only the ones creates by the baup utility
 
 ## Configuration
 
