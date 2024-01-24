@@ -25,5 +25,6 @@ fn main() {
         Com::Push(options) => commands::git_diff::push(config, options),
         Com::Pull(options) => commands::git_diff::pull(config, options),
         Com::Edit(options) => commands::edit_clean::edit(config, options),
+        Com::Clear(options) => commands::edit_clean::clear(config, options),
     };
 }
