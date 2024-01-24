@@ -20,7 +20,7 @@ pub enum Com {
     /// Pulls (using git) any commits to the local repository
     Pull(PullOptions),
     /// Opens the file in which you specify the import/export paths and names
-    Edit,
+    Edit(EditOptions),
     /// Compares the files in the backup directory with the original files
     Diff,
 }
@@ -44,21 +44,28 @@ pub struct ExportOptions {
 
 #[derive(Debug, Args)]
 pub struct CommitOptions {
-    /// Variable number of commit arguments
+    /// Variable number of arguments for the git commit command
     #[arg(num_args = 1.., allow_hyphen_values = true)]
     pub commit_options: Vec<String>,
 }
 
 #[derive(Debug, Args)]
 pub struct PushOptions {
-    /// Variable number of commit arguments
+    /// Variable number of arguments for the git push command
     #[arg(num_args = 1.., allow_hyphen_values = true)]
     pub commit_options: Vec<String>,
 }
 
 #[derive(Debug, Args)]
 pub struct PullOptions {
-    /// Variable number of commit arguments
+    /// Variable number of arguments for the git pull command
     #[arg(num_args = 1.., allow_hyphen_values = true)]
     pub commit_options: Vec<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct EditOptions {
+    /// Open config file instead of backups file
+    #[arg(short = 'c', long = "config", required = false)]
+    pub open_config: bool,
 }

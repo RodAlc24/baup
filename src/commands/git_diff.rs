@@ -5,7 +5,7 @@ use std::{
     process::Command,
 };
 
-use crate::args::*;
+use crate::args::{CommitOptions, PullOptions, PushOptions};
 use crate::config::Config;
 
 fn check_if_git_repo(path: &Path) -> bool {
