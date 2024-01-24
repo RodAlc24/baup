@@ -2,6 +2,7 @@ use colored::Colorize;
 use expanduser;
 use fs_extra::dir;
 use std::{
+    collections::HashSet,
     fs::{self, File},
     io::{self, prelude::*, BufReader},
     path::Path,
@@ -49,6 +50,9 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
             .expect("Error executing the hook");
     }
 
+    // HashSet for the subdirectories
+    let mut subdirectories: HashSet<String> = HashSet::new();
+
     // Loop for every line in the file opened
     for line in reader.lines() {
         let line = line?;
@@ -65,6 +69,11 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
                 continue;
             }
         }
+
+        // Adds subdirectory to the subdirectories array
+        let subdir_splited = parts[1].to_string();
+        let subdir_parts: Vec<&str> = subdir_splited.split('/').collect();
+        subdirectories.insert(subdir_parts[0].to_string());
 
         // Get all files in the directory (for copying)
         let paths = match get_files_from_path(parts[0]) {
@@ -97,6 +106,23 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
                     parts[1].bold()
                 )
             }
+        }
+    }
+
+    // Creates the zip file (if option used)
+    if import_options.create_zip {
+        let result = Command::new("zip")
+            .arg("baup.zip")
+            .arg("-r")
+            .args(subdirectories)
+            .current_dir(file_path)
+            .output()
+            .unwrap();
+        if result.status.success() {
+            println!("{} Created zip file", "[OK]".bold().green());
+        } else {
+            println!("{} Couldn't create the zip file", "[OK]".bold().green());
+            println!("Error: {:?}", result.stderr);
         }
     }
 

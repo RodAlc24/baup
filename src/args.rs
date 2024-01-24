@@ -35,6 +35,9 @@ pub struct ImportOptions {
     /// Automatically creates a commit with the name of the files that have changes
     #[arg(short = 'c', long = "auto-commit", required = false)]
     pub auto_commit: bool,
+    /// Creates a zip file with all the files after backing them up
+    #[arg(short = 'z', long = "zip", required = false)]
+    pub create_zip: bool,
 }
 
 #[derive(Debug, Args)]
