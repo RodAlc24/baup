@@ -51,6 +51,7 @@ Moreover, the command counts with this options to optimize your workflow:
 
 * **partial:** (-p,--partial <DIR>) Only imports the files where the subdirectory (the part after the ';') is equal to the DIR passed as argument
 * **auto-commit:** (-c,--auto-commit) After importing the files, it creates a commit in which the message is a list of the changed files (if there are more than 3 files, it will show 3 and then ...) 
+* **zip:** (-z,--zip) After importing the files, it creates a zip file containing every file in the subdirectories created. This zip will not include the backups file or the .zip directory
 
 ### Export
 
