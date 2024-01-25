@@ -14,3 +14,4 @@ clap = { version = "4.4.16", features = ["derive"]}
 colored = "2.1.0"
 serde = { version = "1.0.195", features = ["derive"]}
 toml = "0.8.8"
+chrono = "0.4"
