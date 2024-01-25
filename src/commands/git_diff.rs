@@ -1,6 +1,8 @@
+use chrono::Local;
 use colored::Colorize;
 use std::{
-    io::{self},
+    fs::File,
+    io::{self, Write},
     path::Path,
     process::Command,
 };
@@ -19,7 +21,7 @@ fn check_if_git_repo(path: &Path) -> bool {
     }
 }
 
-pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
+pub fn commit(config: Config, arguments: CommitOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(&config.path)?;
     let path = match Path::new(&config_path).parent() {
@@ -50,7 +52,12 @@ pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
             println!("{} Created commit successfully", "[OK]".bold().green());
         } else {
             println!("{} Couldn't create commit", "[ERROR]".bold().red());
-            println!("Error: {:?}", output);
+            let message = format!(
+                "[{}][COMMIT] <- {:?}",
+                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                output
+            );
+            let _ = _log_file.write_all(message.as_bytes());
         }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
@@ -59,7 +66,7 @@ pub fn commit(config: Config, arguments: CommitOptions) -> io::Result<()> {
     Ok(())
 }
 
-pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
+pub fn push(config: Config, arguments: PushOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(&config.path)?;
     let path = match Path::new(&config_path).parent() {
@@ -86,7 +93,12 @@ pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
             println!("{} Pushed successfully", "[OK]".bold().green());
         } else {
             println!("{} Couldn't pushed successfully", "[ERROR]".bold().red());
-            println!("Error: {}", output);
+            let message = format!(
+                "[{}][PUSH] <- {:?}",
+                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                output
+            );
+            let _ = _log_file.write_all(message.as_bytes());
         }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
@@ -95,7 +107,7 @@ pub fn push(config: Config, arguments: PushOptions) -> io::Result<()> {
     Ok(())
 }
 
-pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
+pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(&config.path)?;
     let path = match Path::new(&config_path).parent() {
@@ -122,7 +134,12 @@ pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
             println!("{} Pulled successfully", "[OK]".bold().green());
         } else {
             println!("{} Couldn't pulled successfully", "[ERROR]".bold().red());
-            println!("Error: {}", output);
+            let message = format!(
+                "[{}][PULL] <- {:?}",
+                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                output
+            );
+            let _ = _log_file.write_all(message.as_bytes());
         }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
@@ -131,7 +148,7 @@ pub fn pull(config: Config, arguments: PullOptions) -> io::Result<()> {
     Ok(())
 }
 
-pub fn diff(config: Config) -> io::Result<()> {
+pub fn diff(config: Config, mut _log_file: File) -> io::Result<()> {
     println!("Diff");
     Ok(())
 }

@@ -27,31 +27,36 @@ fn main() {
         }
     };
     if log_file != None {
-        let log_file = log_file.unwrap();
-        let log_dir = Path::new(&log_file).parent();
+        let log_file_dir = log_file.unwrap();
+        let log_dir = Path::new(&log_file_dir).parent();
         let _ = fs::create_dir_all(log_dir.unwrap());
-        let mut log_file = OpenOptions::new()
+        let log_file = OpenOptions::new()
             .append(true)
             .create(true)
-            .open(log_file)
+            .open(&log_file_dir)
             .unwrap();
 
         // Parse the arguments using the clap utility
         let arguments = BaupArgs::parse();
         let res = match arguments.command {
-            Com::Import(options) => commands::import_export::import(config, options),
-            Com::Export(options) => commands::import_export::export(config, options),
-            Com::Diff => commands::git_diff::diff(config),
-            Com::Commit(options) => commands::git_diff::commit(config, options),
-            Com::Push(options) => commands::git_diff::push(config, options),
-            Com::Pull(options) => commands::git_diff::pull(config, options),
-            Com::Edit(options) => commands::edit_clean::edit(config, options),
-            Com::Clear(options) => commands::edit_clean::clear(config, options),
+            Com::Import(options) => commands::import_export::import(config, options, log_file),
+            Com::Export(options) => commands::import_export::export(config, options, log_file),
+            Com::Diff => commands::git_diff::diff(config, log_file),
+            Com::Commit(options) => commands::git_diff::commit(config, options, log_file),
+            Com::Push(options) => commands::git_diff::push(config, options, log_file),
+            Com::Pull(options) => commands::git_diff::pull(config, options, log_file),
+            Com::Edit(options) => commands::edit_clean::edit(config, options, log_file),
+            Com::Clear(options) => commands::edit_clean::clear(config, options, log_file),
         };
 
         match res {
             Ok(_) => return,
             Err(err) => {
+                let mut log_file = OpenOptions::new()
+                    .append(true)
+                    .create(true)
+                    .open(log_file_dir)
+                    .unwrap();
                 let time = Local::now().format("%d-%m-%Y %H:%M:%S");
                 let message = format!("[{}] [ERROR] <- {:?}", time, err);
                 let _ = log_file.write_all(message.as_bytes());

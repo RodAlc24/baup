@@ -1,3 +1,4 @@
+use chrono::Local;
 use colored::Colorize;
 use expanduser;
 use fs_extra::dir;
@@ -13,7 +14,11 @@ use crate::args::{CommitOptions, ExportOptions, ImportOptions};
 use crate::commands::git_diff;
 use crate::config::Config;
 
-pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
+pub fn import(
+    config: Config,
+    import_options: ImportOptions,
+    mut _log_file: File,
+) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions {
         overwrite: true,
@@ -133,7 +138,7 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
             let options = CommitOptions {
                 commit_options: vec![String::from("-m"), commit_msg],
             };
-            git_diff::commit(config, options)?;
+            git_diff::commit(config, options, _log_file)?;
         } else {
             println!("{} There are no changes to commit", "[OK]".bold().green());
         }
@@ -142,7 +147,11 @@ pub fn import(config: Config, import_options: ImportOptions) -> io::Result<()> {
     Ok(())
 }
 
-pub fn export(config: Config, export_options: ExportOptions) -> io::Result<()> {
+pub fn export(
+    config: Config,
+    export_options: ExportOptions,
+    mut _log_file: File,
+) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions {
         overwrite: true,

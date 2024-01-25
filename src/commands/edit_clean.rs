@@ -1,10 +1,11 @@
+use chrono::Local;
 use colored::Colorize;
 use std::{
     collections::HashSet,
     env::var,
     fs,
     fs::File,
-    io::{self, prelude::*, BufReader},
+    io::{self, prelude::*, BufReader, Write},
     path::Path,
     process::Command,
 };
@@ -12,7 +13,7 @@ use std::{
 use crate::args::{ClearOptions, EditOptions};
 use crate::config::Config;
 
-pub fn edit(config: Config, edit_options: EditOptions) -> io::Result<()> {
+pub fn edit(config: Config, edit_options: EditOptions, mut _log_file: File) -> io::Result<()> {
     // Get the default editor
     let editor = var("EDITOR").unwrap();
 
@@ -48,7 +49,7 @@ pub fn edit(config: Config, edit_options: EditOptions) -> io::Result<()> {
     Ok(())
 }
 
-pub fn clear(config: Config, clear_options: ClearOptions) -> io::Result<()> {
+pub fn clear(config: Config, clear_options: ClearOptions, mut _log_file: File) -> io::Result<()> {
     // Opens file and checks if the file is correctly opened
     let config_file_expanded = expanduser::expanduser(&config.path)?;
     let file = File::open(config_file_expanded.clone())?;
@@ -82,10 +83,7 @@ pub fn clear(config: Config, clear_options: ClearOptions) -> io::Result<()> {
                     "[ERROR]".bold().red(),
                     partial.bold()
                 );
-                return Err(io::Error::new(
-                    io::ErrorKind::Other,
-                    format!("Error deleting files: {}", err),
-                ));
+                return Err(io::Error::new(io::ErrorKind::Other, format!("{:?}", err)));
             }
         }
     }
@@ -124,6 +122,13 @@ pub fn clear(config: Config, clear_options: ClearOptions) -> io::Result<()> {
                         "[ERROR]".bold().red(),
                         parts[1].bold()
                     );
+                    let message = format!(
+                        "[{}][CLEAR][{}] <- {:?}\n",
+                        Local::now().format("%d-%m-%Y %H:%M:%S"),
+                        line,
+                        err
+                    );
+                    let _ = _log_file.write_all(message.as_bytes());
                 }
             }
         }
