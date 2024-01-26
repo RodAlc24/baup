@@ -14,7 +14,7 @@ else
     sudo ln -s $BINARY_DIR /usr/bin/baup2
     ls -l /usr/bin/baup2
   elif [ $SEL -eq 1 ]; then
-    copy $BINARY_DIR /usr/bin/baup2
+    cp $BINARY_DIR /usr/bin/baup2
   else; then
     echo "Invalid option. Please run the script again"
   fi

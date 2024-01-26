@@ -1,4 +1,4 @@
-use chrono::Local;
+use chrono::{format, Local};
 use colored::Colorize;
 use expanduser;
 use fs_extra::dir;
@@ -109,7 +109,14 @@ pub fn import(
                     "[ERROR]".bold().red(),
                     parts[0].bold(),
                     parts[1].bold()
-                )
+                );
+                let message = format!(
+                    "[{}][IMPORT][{}] <- {:?}\n",
+                    Local::now().format("%d-%m-%Y %H:%M:%S"),
+                    line,
+                    err
+                );
+                let _ = _log_file.write_all(message.as_bytes());
             }
         }
     }
@@ -127,7 +134,12 @@ pub fn import(
             println!("{} Created zip file", "[OK]".bold().green());
         } else {
             println!("{} Couldn't create the zip file", "[OK]".bold().green());
-            println!("Error: {:?}", result.stderr);
+            let message = format!(
+                "[{}][IMPORT][ZIP] <- {:?}\n",
+                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                result.stderr
+            );
+            let _ = _log_file.write_all(message.as_bytes());
         }
     }
 
@@ -258,7 +270,13 @@ pub fn export(
                                 parts[1].bold(),
                                 parts[0].bold()
                             );
-                            println!("Error: {}", err);
+                            let message = format!(
+                                "[{}][IMPORT][{}] <- {:?}\n",
+                                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                                line,
+                                err
+                            );
+                            let _ = _log_file.write_all(message.as_bytes());
                         }
                     }
                 } else if metadata.is_dir() {
@@ -281,7 +299,13 @@ pub fn export(
                                 parts[1].bold(),
                                 parts[0].bold()
                             );
-                            println!("Error: {}", err);
+                            let message = format!(
+                                "[{}][IMPORT][{}] <- {:?}\n",
+                                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                                line,
+                                err
+                            );
+                            let _ = _log_file.write_all(message.as_bytes());
                         }
                     }
                 } else {
