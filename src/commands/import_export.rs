@@ -1,4 +1,4 @@
-use chrono::{format, Local};
+use chrono::Local;
 use colored::Colorize;
 use expanduser;
 use fs_extra::dir;
@@ -61,6 +61,7 @@ pub fn import(
     // Loop for every line in the file opened
     for line in reader.lines() {
         let line = line?;
+
         // Check if line is empty or a comment (starts with '#')
         if line.trim().is_empty() || line.trim().starts_with('#') {
             continue;
