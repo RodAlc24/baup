@@ -2,7 +2,7 @@ use chrono::Local;
 use colored::Colorize;
 use std::{
     fs::File,
-    io::{self, prelude::*, BufReader, Write},
+    io::{self, Write},
     path::Path,
     process::Command,
 };
@@ -150,33 +150,5 @@ pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::
 
 pub fn diff(config: Config, mut _log_file: File) -> io::Result<()> {
     println!("Diff");
-    // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(&config.path)?;
-    let file = File::open(config_file_expanded.clone())?;
-    let reader = BufReader::new(file);
-
-    // Get path from the file_path str
-    let file_path = match Path::new(&config_file_expanded).parent() {
-        Some(path) => path,
-        None => {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
-            ))
-        }
-    };
-
-    // Loop for every line in the file
-    for line in reader.lines() {
-        let line = line?;
-
-        // Check if line is empty or a comment (starts with '#')
-        if line.trim().is_empty() || line.trim().starts_with('#') {
-            continue;
-        }
-        // Divide the line through the ';'
-        let parts: Vec<&str> = line.split(';').collect();
-    }
-
     Ok(())
 }
