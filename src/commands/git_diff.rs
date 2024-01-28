@@ -1,7 +1,7 @@
 use chrono::Local;
 use colored::Colorize;
 use std::{
-    fs::File,
+    fs::{self, File},
     io::{self, prelude::*, BufReader, Write},
     path::Path,
     process::Command,
@@ -149,7 +149,6 @@ pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::
 }
 
 pub fn diff(config: Config, mut _log_file: File) -> io::Result<()> {
-    println!("Diff");
     // Opens file and checks if the file is correctly opened
     let config_file_expanded = expanduser::expanduser(&config.path)?;
     let file = File::open(config_file_expanded.clone())?;
@@ -176,6 +175,45 @@ pub fn diff(config: Config, mut _log_file: File) -> io::Result<()> {
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
+        let expanded_origin = expanduser::expanduser(parts[0])?;
+
+        // Checking wheter the origin is a file or directory
+        match fs::metadata(expanded_origin.clone()) {
+            Ok(metadata) => {
+                if metadata.is_file() {
+                    let file_name: Vec<&str> = parts[0].split('/').collect();
+                    let to_path = format!(
+                        "{}/{}/{}",
+                        file_path.display().to_string(),
+                        parts[1],
+                        file_name.last().unwrap()
+                    );
+                    Command::new("diff")
+                        .args([
+                            "-u",
+                            "--color",
+                            &to_path,
+                            &expanded_origin.display().to_string(),
+                        ])
+                        .status()
+                        .unwrap();
+                } else if metadata.is_dir() {
+                    println!("Dir");
+                } else {
+                    println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
+                }
+            }
+            Err(err) => {
+                println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
+                let message = format!(
+                    "[{}][DIFF][{}] <- {:?}",
+                    Local::now().format("%d-%m-%Y %H:%M:%S"),
+                    line,
+                    err
+                );
+                let _ = _log_file.write_all(message.as_bytes());
+            }
+        }
     }
 
     Ok(())
