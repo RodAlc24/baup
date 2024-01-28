@@ -41,7 +41,7 @@ fn main() {
         let res = match arguments.command {
             Com::Import(options) => commands::import_export::import(config, options, log_file),
             Com::Export(options) => commands::import_export::export(config, options, log_file),
-            Com::Diff => commands::git_diff::diff(config, log_file),
+            Com::Diff(options) => commands::git_diff::diff(config, options, log_file),
             Com::Commit(options) => commands::git_diff::commit(config, options, log_file),
             Com::Push(options) => commands::git_diff::push(config, options, log_file),
             Com::Pull(options) => commands::git_diff::pull(config, options, log_file),

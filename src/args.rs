@@ -22,7 +22,7 @@ pub enum Com {
     /// Opens the file in which you specify the import/export paths and names
     Edit(EditOptions),
     /// Compares the files in the backup directory with the original files
-    Diff,
+    Diff(DiffOptions),
     /// Deletes files in the backups folder
     Clear(ClearOptions),
 }
@@ -73,6 +73,13 @@ pub struct EditOptions {
     /// Open config file instead of backups file
     #[arg(short = 'c', long = "config", required = false)]
     pub open_config: bool,
+}
+
+#[derive(Debug, Args)]
+pub struct DiffOptions {
+    /// Exports only one part of the files
+    #[arg(short = 'p', long = "partial", value_name = "DIR", required = false)]
+    pub partial: Option<String>,
 }
 
 #[derive(Debug, Args)]

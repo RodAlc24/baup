@@ -7,7 +7,7 @@ use std::{
     process::Command,
 };
 
-use crate::args::{CommitOptions, PullOptions, PushOptions};
+use crate::args::{CommitOptions, DiffOptions, PullOptions, PushOptions};
 use crate::config::Config;
 
 fn check_if_git_repo(path: &Path) -> bool {
@@ -148,7 +148,7 @@ pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::
     Ok(())
 }
 
-pub fn diff(config: Config, mut _log_file: File) -> io::Result<()> {
+pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> io::Result<()> {
     // Opens file and checks if the file is correctly opened
     let config_file_expanded = expanduser::expanduser(&config.path)?;
     let file = File::open(config_file_expanded.clone())?;
@@ -176,6 +176,13 @@ pub fn diff(config: Config, mut _log_file: File) -> io::Result<()> {
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
         let expanded_origin = expanduser::expanduser(parts[0])?;
+
+        // Checks for the partial flag
+        if let Some(ref partial) = diff_options.partial {
+            if partial.ne(parts[1]) {
+                continue;
+            }
+        }
 
         // Checking wheter the origin is a file or directory
         match fs::metadata(expanded_origin.clone()) {
