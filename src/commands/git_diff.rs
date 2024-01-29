@@ -92,7 +92,7 @@ pub fn push(config: Config, arguments: PushOptions, mut _log_file: File) -> io::
         if output.success() {
             println!("{} Pushed successfully", "[OK]".bold().green());
         } else {
-            println!("{} Couldn't pushed successfully", "[ERROR]".bold().red());
+            println!("{} Couldn't push successfully", "[ERROR]".bold().red());
             let message = format!(
                 "[{}][PUSH] <- {:?}",
                 Local::now().format("%d-%m-%Y %H:%M:%S"),
@@ -133,7 +133,7 @@ pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::
         if output.success() {
             println!("{} Pulled successfully", "[OK]".bold().green());
         } else {
-            println!("{} Couldn't pulled successfully", "[ERROR]".bold().red());
+            println!("{} Couldn't pull successfully", "[ERROR]".bold().red());
             let message = format!(
                 "[{}][PULL] <- {:?}",
                 Local::now().format("%d-%m-%Y %H:%M:%S"),
@@ -195,7 +195,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> i
                         parts[1],
                         file_name.last().unwrap()
                     );
-                    Command::new("diff")
+                    let output = Command::new("diff")
                         .args([
                             "-u",
                             "--color",
@@ -204,8 +204,44 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> i
                         ])
                         .status()
                         .unwrap();
+                    if output.success() {
+                        println!(
+                            "{} No changes in {}",
+                            "[OK]".bold().green(),
+                            parts[0].bold()
+                        );
+                    } else {
+                        println!(
+                            "{} There are changes in {}",
+                            "[OK]".bold().green(),
+                            parts[0].bold()
+                        );
+                    }
                 } else if metadata.is_dir() {
-                    println!("Dir");
+                    let to_path = format!("{}/{}/", file_path.display().to_string(), parts[1]);
+                    let output = Command::new("diff")
+                        .args([
+                            "-r",
+                            "-u",
+                            "--color",
+                            &to_path,
+                            &expanded_origin.display().to_string(),
+                        ])
+                        .status()
+                        .unwrap();
+                    if output.success() {
+                        println!(
+                            "{} No changes in {}",
+                            "[OK]".bold().green(),
+                            parts[0].bold()
+                        );
+                    } else {
+                        println!(
+                            "{} There are changes in {}",
+                            "[OK]".bold().green(),
+                            parts[0].bold()
+                        );
+                    }
                 } else {
                     println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
                 }
