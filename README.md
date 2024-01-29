@@ -18,7 +18,7 @@ Alternatively, you can install the utility running the command: `sudo sh install
 
 ## Setup
 
-Before starting to use the utility, you need to setup the auxiliar file.
+Before starting to use the utility, you need to set up the auxiliary file.
 You can create it manually, or run `baup edit` for creating and editing it.
 
 An example of this file could be:
@@ -40,22 +40,22 @@ In this example, **all** the files in the ~/.config/helix/ directory will be cop
 
 ## Usage
 
-The CLI Tool counts with subcommand to execute a certain action, this commands are:
+The CLI Tool counts with subcommands to execute a certain action, these commands are:
 
 ### Import
 
 The import command copies all the files specified in the backups file to the directory where this file is located.
 The commands copies all the files recursively if the origin is a directory, and just the specified file if the origin is a file.
 
-Moreover, the command counts with this options to optimize your workflow:
+Moreover, the command counts with these options to optimize your workflow:
 
-* **partial:** (-p,--partial <DIR>) Only imports the files where the subdirectory (the part after the ';') is equal to the DIR passed as argument
+* **partial:** (-p,--partial <DIR>) Only imports the files where the subdirectory (the part after the ';') is equal to the DIR passed as an argument
 * **auto-commit:** (-c,--auto-commit) After importing the files, it creates a commit in which the message is a list of the changed files (if there are more than 3 files, it will show 3 and then ...) 
 * **zip:** (-z,--zip) After importing the files, it creates a zip file containing every file in the subdirectories created. This zip will not include the backups file or the .zip directory
 
 ### Export
 
-This command has the oposite function as import, copying the files from the backups folder to their original locations.
+This command has the opposite function as import, copying the files from the backups folder to their original locations.
 The export command counts, as import did, with the partial (-p,--partial) option for exporting only one part of the files.
 
 ### Commit
@@ -72,7 +72,7 @@ Also, the push command will pass any arguments to the git command.
 
 ### Pull
 
-This command works exactly the same as push or commit, but for pulling any changes to the local repository from the remote repository.
+This command works the same as push or commit, but for pulling any changes to the local repository from the remote repository.
 
 ### Edit
 
@@ -82,14 +82,15 @@ This command counts with a config (-c,--config) flag for opening (and creating i
 
 ### Diff
 
-TODO
+The diff command allows the user to check for the changes done in the files to be backed up. 
+As the import and export command, the diff command counts with a partial flag for only checking part of the files.
 
 ### Clear
 
 The clear command deletes the subdirectories of the backups directory.
-This command counts with partial flag for only deleting a subdirectory with the name passed as argument.
+This command counts with the partial flag for only deleting a subdirectory with the name passed as argument.
 
-Note: Using the partial flag you can delete any subdirectories, not only the ones creates by the baup utility
+Note: Using the partial flag you can delete any subdirectories, not only the ones created by the baup utility
 
 ## Configuration
 
@@ -97,9 +98,9 @@ The program can be configured using a configuration file. This file will be loca
 The values that can be changed are the following:
 
 * **path** -> The path to the backups file (`~/.baup/files.txt` for default)
-* **auto_commit** -> Works exactly the same as the auto-commit option for the import command (false for default)
-* **import_hook** -> A script that will be execute it before any files are imported (None for default)
-* **import_hook** -> A script that will be execute it before any files are exported (None for default)
+* **auto_commit** -> Works the same as the auto-commit option for the import command (false for default)
+* **import_hook** -> A script that will get executed before any files are imported (None for default)
+* **import_hook** -> A script that will get executed before any files are exported (None for default)
 
 An example configuration file can be:
 ```
