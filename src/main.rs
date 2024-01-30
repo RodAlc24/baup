@@ -58,7 +58,7 @@ fn main() {
                     .open(log_file_dir)
                     .unwrap();
                 let time = Local::now().format("%d-%m-%Y %H:%M:%S");
-                let message = format!("[{}] [ERROR] <- {:?}", time, err);
+                let message = format!("[{}] [ERROR] <- {:?}\n", time, err);
                 let _ = log_file.write_all(message.as_bytes());
             }
         }

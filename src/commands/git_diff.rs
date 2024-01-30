@@ -53,7 +53,7 @@ pub fn commit(config: Config, arguments: CommitOptions, mut _log_file: File) -> 
         } else {
             println!("{} Couldn't create commit", "[ERROR]".bold().red());
             let message = format!(
-                "[{}][COMMIT] <- {:?}",
+                "[{}][COMMIT] <- {:?}\n",
                 Local::now().format("%d-%m-%Y %H:%M:%S"),
                 output
             );
@@ -94,7 +94,7 @@ pub fn push(config: Config, arguments: PushOptions, mut _log_file: File) -> io::
         } else {
             println!("{} Couldn't push successfully", "[ERROR]".bold().red());
             let message = format!(
-                "[{}][PUSH] <- {:?}",
+                "[{}][PUSH] <- {:?}\n",
                 Local::now().format("%d-%m-%Y %H:%M:%S"),
                 output
             );
@@ -135,7 +135,7 @@ pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::
         } else {
             println!("{} Couldn't pull successfully", "[ERROR]".bold().red());
             let message = format!(
-                "[{}][PULL] <- {:?}",
+                "[{}][PULL] <- {:?}\n",
                 Local::now().format("%d-%m-%Y %H:%M:%S"),
                 output
             );
@@ -249,7 +249,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> i
             Err(err) => {
                 println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
                 let message = format!(
-                    "[{}][DIFF][{}] <- {:?}",
+                    "[{}][DIFF][{}] <- {:?}\n",
                     Local::now().format("%d-%m-%Y %H:%M:%S"),
                     line,
                     err
