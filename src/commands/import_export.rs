@@ -40,15 +40,14 @@ pub fn import(
         None => {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
+                "Error getting the path for the backup".to_string(),
             ))
         }
     };
 
     // Executes the hook (if exists)
-    if config.hooks.import_hook != None {
-        let hook_file =
-            expanduser::expanduser(config.hooks.import_hook.as_ref().unwrap().to_string()).unwrap();
+    if config.hooks.import_hook.is_some() {
+        let hook_file = expanduser::expanduser(config.hooks.import_hook.as_ref().unwrap()).unwrap();
         Command::new("sh")
             .arg(hook_file)
             .status()
@@ -186,15 +185,14 @@ pub fn export(
         None => {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
+                "Error getting the path for the backup".to_string(),
             ))
         }
     };
 
     // Executes the hook (if exists)
-    if config.hooks.export_hook != None {
-        let hook_file =
-            expanduser::expanduser(config.hooks.export_hook.as_ref().unwrap().to_string()).unwrap();
+    if config.hooks.export_hook.is_some() {
+        let hook_file = expanduser::expanduser(config.hooks.export_hook.as_ref().unwrap()).unwrap();
         Command::new("sh")
             .arg(hook_file)
             .status()
@@ -338,7 +336,7 @@ fn get_files_from_path(path: &str) -> Result<Vec<String>, String> {
         Ok(metadata) => {
             if metadata.is_file() {
                 let ret: Vec<String> = vec![expanded_path.display().to_string()];
-                return Ok(ret);
+                Ok(ret)
             } else if metadata.is_dir() {
                 let files = fs::read_dir(expanded_path.display().to_string()).unwrap();
                 let mut ret: Vec<String> = vec![String::from("")];
@@ -346,14 +344,12 @@ fn get_files_from_path(path: &str) -> Result<Vec<String>, String> {
                 for path in files {
                     ret.push(path.unwrap().path().display().to_string());
                 }
-                return Ok(ret);
+                Ok(ret)
             } else {
-                return Err(format!("Path is neither a file nor a directory"));
+                Err("Path is neither a file nor a directory".to_string())
             }
         }
-        Err(e) => {
-            return Err(format!("Error accessing metadata: {}", e));
-        }
+        Err(e) => Err(format!("Error accessing metadata: {}", e)),
     }
 }
 
@@ -383,5 +379,5 @@ fn get_changed_files(directory: &str) -> String {
         result.push_str("...");
     }
 
-    return result.trim_end_matches(" ; ").to_string();
+    result.trim_end_matches(" ; ").to_string()
 }

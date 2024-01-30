@@ -17,26 +17,26 @@ fn check_if_git_repo(path: &Path) -> bool {
         .output();
     match output {
         Ok(output) => return String::from_utf8_lossy(&output.stdout).eq(&String::from("true\n")),
-        Err(_) => return false,
+        Err(_) => false,
     }
 }
 
 pub fn commit(config: Config, arguments: CommitOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = expanduser::expanduser(&config.path)?;
+    let config_path = expanduser::expanduser(config.path)?;
     let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
+                "Error getting the path for the backup".to_string(),
             ))
         }
     };
 
     // Check if there is a git repository
     let repo = check_if_git_repo(path);
-    if repo == true {
+    if repo {
         // Creates the commit
         let _ = Command::new("git")
             .args(["add", "."])
@@ -68,20 +68,20 @@ pub fn commit(config: Config, arguments: CommitOptions, mut _log_file: File) -> 
 
 pub fn push(config: Config, arguments: PushOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = expanduser::expanduser(&config.path)?;
+    let config_path = expanduser::expanduser(config.path)?;
     let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
+                "Error getting the path for the backup".to_string(),
             ))
         }
     };
 
     // Check if there is a git repository
     let repo = check_if_git_repo(path);
-    if repo == true {
+    if repo {
         // Push using git
         let output = Command::new("git")
             .arg("push")
@@ -109,20 +109,20 @@ pub fn push(config: Config, arguments: PushOptions, mut _log_file: File) -> io::
 
 pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
-    let config_path = expanduser::expanduser(&config.path)?;
+    let config_path = expanduser::expanduser(config.path)?;
     let path = match Path::new(&config_path).parent() {
         Some(path) => path,
         None => {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
+                "Error getting the path for the backup".to_string(),
             ))
         }
     };
 
     // Check if there is a git repository
     let repo = check_if_git_repo(path);
-    if repo == true {
+    if repo {
         // Pull using git
         let output = Command::new("git")
             .arg("pull")
@@ -150,7 +150,7 @@ pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::
 
 pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> io::Result<()> {
     // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(&config.path)?;
+    let config_file_expanded = expanduser::expanduser(config.path)?;
     let file = File::open(config_file_expanded.clone())?;
     let reader = BufReader::new(file);
 
@@ -160,7 +160,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> i
         None => {
             return Err(io::Error::new(
                 io::ErrorKind::Other,
-                format!("Error getting the path for the backup"),
+                "Error getting the path for the backup".to_string(),
             ))
         }
     };
@@ -191,7 +191,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> i
                     let file_name: Vec<&str> = parts[0].split('/').collect();
                     let to_path = format!(
                         "{}/{}/{}",
-                        file_path.display().to_string(),
+                        file_path.display(),
                         parts[1],
                         file_name.last().unwrap()
                     );
@@ -218,7 +218,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> i
                         );
                     }
                 } else if metadata.is_dir() {
-                    let to_path = format!("{}/{}/", file_path.display().to_string(), parts[1]);
+                    let to_path = format!("{}/{}/", file_path.display(), parts[1]);
                     let output = Command::new("diff")
                         .args([
                             "-r",

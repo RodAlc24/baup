@@ -32,18 +32,18 @@ impl Config {
 }
 
 fn default_path() -> String {
-    return "~/.baup/files.txt".to_string();
+    "~/.baup/files.txt".to_string()
 }
 
 fn default_auto_commit() -> bool {
-    return false;
+    false
 }
 
 fn default_hooks() -> Hooks {
-    return Hooks {
+    Hooks {
         import_hook: None,
         export_hook: None,
-    };
+    }
 }
 
 pub fn get_config() -> Config {

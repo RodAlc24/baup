@@ -26,7 +26,7 @@ fn main() {
             None
         }
     };
-    if log_file != None {
+    if log_file.is_some() {
         let log_file_dir = log_file.unwrap();
         let log_dir = Path::new(&log_file_dir).parent();
         let _ = fs::create_dir_all(log_dir.unwrap());
@@ -50,7 +50,7 @@ fn main() {
         };
 
         match res {
-            Ok(_) => return,
+            Ok(_) => (),
             Err(err) => {
                 let mut log_file = OpenOptions::new()
                     .append(true)
@@ -60,7 +60,6 @@ fn main() {
                 let time = Local::now().format("%d-%m-%Y %H:%M:%S");
                 let message = format!("[{}] [ERROR] <- {:?}", time, err);
                 let _ = log_file.write_all(message.as_bytes());
-                return;
             }
         }
     }
