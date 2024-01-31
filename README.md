@@ -111,6 +111,20 @@ import_hook="~/.config/baup/hooks/import.sh"
 ```
 As you can see in the example, you don't need to set all the values in the config file for it to work
 
+# ZSH completion
+`_baup` is a completion configuration for ZSH. If you want to use it you must paste it in your `fpath`. If you don't have a `fpath` directory yet, add this to your `.zshrc`:
+
+```
+fpath=($HOME/completion_zsh $fpath)
+```
+
+Now in `$HOME/completion_zsh` you can add completion files like `_baup`.
+
+Note: you must also add the following to your `.zshr`: 
+```
+autoload -U compinit; compinit
+```
+
 ## Contributors
  - RodAlc24
  - ImanolCiganda

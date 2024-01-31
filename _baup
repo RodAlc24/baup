@@ -1,0 +1,120 @@
+#compdef _baup baup
+
+_baup() {
+  local line state
+
+  _arguments -C \
+    "1: :->cmds" \
+    "*::arg:->args"
+
+  case "$state" in
+    cmds)
+      _values "baup command" \
+        "import[Imports the config files to the backup directory]" \
+        "export[Exports the config files from the backup directory]" \
+        "commit[Commits all the changes in the backup directory using git]" \
+        "push[Pushes (using git) any commits in the local repository]" \
+        "pull[Pulls (using git) any commits to the local repository]" \
+        "edit[Opens the file in which you specify the import/export paths and names]" \
+        "diff[Compares the files in the backup directory with the original files]" \
+        "clear[Deletes files in the backups folder]" \
+        "help[Prints this message or the help of the given subcommand(s)]" \
+        "-h[Prints help]" \
+        "--help[Prints help]" \
+        "-V[Prints version]" \
+        "--version[Prints version]" \
+      ;;
+      
+    args)
+      case $line[1] in
+        import)
+          _baup_import
+          ;;
+
+        export)
+          _baup_export
+          ;;
+
+        commit)
+          _baup_general
+          ;;
+
+        push)
+          _baup_general
+          ;;
+
+        pull)
+          _baup_general
+          ;;
+
+        edit)
+          _baup_edit
+          ;;
+
+        diff)
+          _baup_diff
+          ;;
+
+        clear)
+          _baup_clear
+          ;;
+
+        help)
+          _baup_help
+          ;;
+
+        edit)
+      esac
+      ;;
+    esac
+}
+
+_baup_import() {
+  _arguments -s \
+    {-p,--partial}'[Imports only one part of the files]' \
+    {-c,--auto-commit}'[Automatically creates a commit with the name of the files that have changes]' \
+    {-z,--zip}'[Creates a zip file with all the files after backing them up]' \
+    {-h,--help}'[Print help]' \
+}
+
+_baup_export() {
+  _arguments -s \
+    {-p,--partial}'[Exports only one part of the files]' \
+    {-h,--help}'[Print help]' \
+}
+
+_baup_clear() {
+  _arguments -s \
+    {-p,--partial}'[Deletes only one part of the files]' \
+    {-h,--help}'[Print help]' \
+}
+
+_baup_general() {
+  _arguments -s \
+    {-h,--help}'[Print help]' \
+  }
+
+_baup_edit() {
+  _arguments -s \
+    {-c,--config}'[Open config file instead of backups file]' \
+    {-h,--help}'[Print help]' \
+}
+
+_baup_diff() {
+  _arguments -s \
+    {-p,--partial}'[Diffs only one part of the files]' \
+    {-h,--help}'[Print help]' \
+}
+
+_baup_help() {
+  _values  "help command" \
+    "import[Import command help]" \
+    "export[Export command help]" \
+    "commit[Commit command help]" \
+    "push[Push command help]" \
+    "pull[Pull command help]" \
+    "edit[Edit command help]" \
+    "diff[Diff command help]" \
+    "clear[Clear command help]" \
+    "help[Help command help]" \
+}
