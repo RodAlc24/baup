@@ -100,7 +100,7 @@ The values that can be changed are the following:
 * **path** -> The path to the backups file (`~/.baup/files.txt` for default)
 * **auto_commit** -> Works the same as the auto-commit option for the import command (false for default)
 * **import_hook** -> A script that will get executed before any files are imported (None for default)
-* **import_hook** -> A script that will get executed before any files are exported (None for default)
+* **export_hook** -> A script that will get executed before any files are exported (None for default)
 
 An example configuration file can be:
 ```
@@ -120,7 +120,7 @@ fpath=($HOME/completion_zsh $fpath)
 
 Now in `$HOME/completion_zsh` you can add completion files like `_baup`.
 
-Note: you must also add the following to your `.zshr`: 
+Note: you must also add the following to your `.zshrc`: 
 ```
 autoload -U compinit; compinit
 ```
