@@ -11,11 +11,11 @@ else
   echo "[1] Copy the executable"
   read -p "Select Option: " SEL
   if [ $SEL -eq 0 ]; then
-    sudo ln -s $BINARY_DIR /usr/bin/baup2
-    ls -l /usr/bin/baup2
+    sudo ln -s $BINARY_DIR /usr/bin/baup
+    ls -l /usr/bin/baup
   elif [ $SEL -eq 1 ]; then
-    cp $BINARY_DIR /usr/bin/baup2
-  else; then
+    cp $BINARY_DIR /usr/bin/baup
+  else
     echo "Invalid option. Please run the script again"
   fi
 fi

@@ -7,7 +7,7 @@ use std::{
     process::Command,
 };
 
-use crate::args::{CommitOptions, DiffOptions, PullOptions, PushOptions};
+use crate::args::{DiffOptions, GitOptions};
 use crate::config::Config;
 
 fn check_if_git_repo(path: &Path) -> bool {
@@ -21,7 +21,7 @@ fn check_if_git_repo(path: &Path) -> bool {
     }
 }
 
-pub fn commit(config: Config, arguments: CommitOptions, mut _log_file: File) -> io::Result<()> {
+pub fn git(config: Config, arguments: GitOptions, mut _log_file: File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(config.path)?;
     let path = match Path::new(&config_path).parent() {
@@ -43,99 +43,14 @@ pub fn commit(config: Config, arguments: CommitOptions, mut _log_file: File) -> 
             .current_dir(path)
             .output();
         let output = Command::new("git")
-            .arg("commit")
-            .args(arguments.commit_options)
+            .args(arguments.git_options)
             .current_dir(path)
             .status()
             .unwrap();
-        if output.success() {
-            println!("{} Created commit successfully", "[OK]".bold().green());
-        } else {
-            println!("{} Couldn't create commit", "[ERROR]".bold().red());
+        if !output.success() {
+            println!("{} Error while calling git", "[ERROR]".bold().red());
             let message = format!(
-                "[{}][COMMIT] <- {:?}\n",
-                Local::now().format("%d-%m-%Y %H:%M:%S"),
-                output
-            );
-            let _ = _log_file.write_all(message.as_bytes());
-        }
-    } else {
-        println!("{} Directory is not a git repo", "[ERROR]".bold().red());
-    }
-
-    Ok(())
-}
-
-pub fn push(config: Config, arguments: PushOptions, mut _log_file: File) -> io::Result<()> {
-    // Get path from the file_path str
-    let config_path = expanduser::expanduser(config.path)?;
-    let path = match Path::new(&config_path).parent() {
-        Some(path) => path,
-        None => {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Error getting the path for the backup".to_string(),
-            ))
-        }
-    };
-
-    // Check if there is a git repository
-    let repo = check_if_git_repo(path);
-    if repo {
-        // Push using git
-        let output = Command::new("git")
-            .arg("push")
-            .args(arguments.commit_options)
-            .current_dir(path)
-            .status()
-            .unwrap();
-        if output.success() {
-            println!("{} Pushed successfully", "[OK]".bold().green());
-        } else {
-            println!("{} Couldn't push successfully", "[ERROR]".bold().red());
-            let message = format!(
-                "[{}][PUSH] <- {:?}\n",
-                Local::now().format("%d-%m-%Y %H:%M:%S"),
-                output
-            );
-            let _ = _log_file.write_all(message.as_bytes());
-        }
-    } else {
-        println!("{} Directory is not a git repo", "[ERROR]".bold().red());
-    }
-
-    Ok(())
-}
-
-pub fn pull(config: Config, arguments: PullOptions, mut _log_file: File) -> io::Result<()> {
-    // Get path from the file_path str
-    let config_path = expanduser::expanduser(config.path)?;
-    let path = match Path::new(&config_path).parent() {
-        Some(path) => path,
-        None => {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Error getting the path for the backup".to_string(),
-            ))
-        }
-    };
-
-    // Check if there is a git repository
-    let repo = check_if_git_repo(path);
-    if repo {
-        // Pull using git
-        let output = Command::new("git")
-            .arg("pull")
-            .args(arguments.commit_options)
-            .current_dir(path)
-            .status()
-            .unwrap();
-        if output.success() {
-            println!("{} Pulled successfully", "[OK]".bold().green());
-        } else {
-            println!("{} Couldn't pull successfully", "[ERROR]".bold().red());
-            let message = format!(
-                "[{}][PULL] <- {:?}\n",
+                "[{}][GIT] <- {:?}\n",
                 Local::now().format("%d-%m-%Y %H:%M:%S"),
                 output
             );

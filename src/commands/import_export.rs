@@ -10,7 +10,7 @@ use std::{
     process::Command,
 };
 
-use crate::args::{CommitOptions, ExportOptions, ImportOptions};
+use crate::args::{ExportOptions, GitOptions, ImportOptions};
 use crate::commands::git_diff;
 use crate::config::Config;
 
@@ -147,10 +147,10 @@ pub fn import(
     if import_options.auto_commit || config.auto_commit {
         let commit_msg = get_changed_files(&file_path.display().to_string());
         if commit_msg.ne("") {
-            let options = CommitOptions {
-                commit_options: vec![String::from("-m"), commit_msg],
+            let options = GitOptions {
+                git_options: vec!["commit".to_string(), String::from("-m"), commit_msg],
             };
-            git_diff::commit(config, options, _log_file)?;
+            git_diff::git(config, options, _log_file)?;
         } else {
             println!("{} There are no changes to commit", "[OK]".bold().green());
         }
