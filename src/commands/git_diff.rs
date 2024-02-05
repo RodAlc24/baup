@@ -37,11 +37,14 @@ pub fn git(config: Config, arguments: GitOptions, mut _log_file: File) -> io::Re
     // Check if there is a git repository
     let repo = check_if_git_repo(path);
     if repo {
-        // Creates the commit
-        let _ = Command::new("git")
-            .args(["add", "."])
-            .current_dir(path)
-            .output();
+        // If the command to execute is a commit it adds every file
+        if arguments.git_options[0].eq("commit") {
+            let _ = Command::new("git")
+                .args(["add", "."])
+                .current_dir(path)
+                .output();
+        }
+        // Executes git command
         let output = Command::new("git")
             .args(arguments.git_options)
             .current_dir(path)
