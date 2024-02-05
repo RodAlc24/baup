@@ -12,9 +12,7 @@ _baup() {
       _values "baup command" \
         "import[Imports the config files to the backup directory]" \
         "export[Exports the config files from the backup directory]" \
-        "commit[Commits all the changes in the backup directory using git]" \
-        "push[Pushes (using git) any commits in the local repository]" \
-        "pull[Pulls (using git) any commits to the local repository]" \
+        "git[Calls the git command]" \
         "edit[Opens the file in which you specify the import/export paths and names]" \
         "diff[Compares the files in the backup directory with the original files]" \
         "clear[Deletes files in the backups folder]" \
@@ -35,15 +33,7 @@ _baup() {
           _baup_export
           ;;
 
-        commit)
-          _baup_general
-          ;;
-
-        push)
-          _baup_general
-          ;;
-
-        pull)
+        git)
           _baup_general
           ;;
 
