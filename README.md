@@ -58,21 +58,12 @@ Moreover, the command counts with these options to optimize your workflow:
 This command has the opposite function as import, copying the files from the backups folder to their original locations.
 The export command counts, as import did, with the partial (-p,--partial) option for exporting only one part of the files.
 
-### Commit
+### Git
 
-Using git, this command commits the changes made in the backups repository.
-Any options that you write after baup will be passed as arguments to the git commit command.
+This command allows the user to call the git command in the backups folder.
+Since this command calls git, the user will be able to call any git command suported by their version.
 
-For example, if you ran `baup commit -m "Test"`, the program will `git add .` and `git commit -m "Test"`
-
-### Push
-
-As the commit command did, push uses git to push all the commits made in the repository.
-Also, the push command will pass any arguments to the git command.
-
-### Pull
-
-This command works the same as push or commit, but for pulling any changes to the local repository from the remote repository.
+Furthermore, if you call the command `baup git commit ...` the utility will execute `git add .` before creating the commit.
 
 ### Edit
 
