@@ -34,7 +34,7 @@ _baup() {
           ;;
 
         git)
-          _baup_general
+          _baup_git
           ;;
 
         edit)
@@ -77,6 +77,10 @@ _baup_clear() {
   _arguments -s \
     {-p,--partial}'[Deletes only one part of the files]' \
     {-h,--help}'[Print help]' \
+}
+
+_baup_git() {
+  _arguments -s \
 }
 
 _baup_general() {
