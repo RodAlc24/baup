@@ -8,6 +8,8 @@ The CLI uses a configurable file to determine which files it needs to backup.
 
 ## Installation
 
+(If you are using Arch Linux, there is an AUR package called `baup-git`).
+
 To install the utility, follow the next instructions:
 
 1. Clone the repository in your machine
