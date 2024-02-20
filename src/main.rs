@@ -3,7 +3,13 @@ use args::Com;
 use chrono::Local;
 use clap::Parser;
 use colored::Colorize;
-use std::{fs, fs::OpenOptions, io::Write, path::Path};
+use std::io;
+use std::{
+    fs,
+    fs::OpenOptions,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 mod args;
 mod config;
@@ -14,51 +20,53 @@ mod commands {
 }
 
 // Main function for the program
-fn main() {
+fn main() -> io::Result<()> {
     // Gets the config from the file
     let config = config::get_config();
 
-    // Opens the log file in append mode
+    // Expands the location for the baup log file
     let log_file = match expanduser::expanduser("~/.cache/baup/baup.log") {
-        Ok(file) => Some(file.to_string_lossy().into_owned()),
-        Err(_) => {
-            println!("{} Couldn't open the log file", "[ERROR]".bold().red());
-            None
-        }
+        Ok(file) => Some(file),
+        Err(_) => None,
     };
     if log_file.is_some() {
+        // If there is no error, creates (if necessary) the directory for the log file
         let log_file_dir = log_file.unwrap();
-        let log_dir = Path::new(&log_file_dir).parent();
-        let _ = fs::create_dir_all(log_dir.unwrap());
-        let log_file = OpenOptions::new()
+        let log_dir = match Path::new(&log_file_dir).parent() {
+            Some(path) => path,
+            None => {
+                println!("{} Couldn't open the log file", "[ERROR]".bold().red());
+                return Ok(());
+            }
+        };
+        let _ = fs::create_dir_all(log_dir);
+        // Opens the log file in append mode
+        let mut log_file = OpenOptions::new()
             .append(true)
             .create(true)
-            .open(&log_file_dir)
-            .unwrap();
+            .open(&log_file_dir)?;
 
         // Parse the arguments using the clap utility
         let arguments = BaupArgs::parse();
         let res = match arguments.command {
-            Com::Import(options) => commands::import_export::import(config, options, log_file),
-            Com::Export(options) => commands::import_export::export(config, options, log_file),
-            Com::Diff(options) => commands::git_diff::diff(config, options, log_file),
-            Com::Git(options) => commands::git_diff::git(config, options, log_file),
-            Com::Edit(options) => commands::edit_clean::edit(config, options, log_file),
-            Com::Clear(options) => commands::edit_clean::clear(config, options, log_file),
+            Com::Import(options) => commands::import_export::import(config, options, &mut log_file),
+            Com::Export(options) => commands::import_export::export(config, options, &mut log_file),
+            Com::Diff(options) => commands::git_diff::diff(config, options, &mut log_file),
+            Com::Git(options) => commands::git_diff::git(config, options, &mut log_file),
+            Com::Edit(options) => commands::edit_clean::edit(config, options, &mut log_file),
+            Com::Clear(options) => commands::edit_clean::clear(config, options, &mut log_file),
         };
 
         match res {
             Ok(_) => (),
             Err(err) => {
-                let mut log_file = OpenOptions::new()
-                    .append(true)
-                    .create(true)
-                    .open(log_file_dir)
-                    .unwrap();
                 let time = Local::now().format("%d-%m-%Y %H:%M:%S");
                 let message = format!("[{}] [ERROR] <- {:?}\n", time, err);
                 let _ = log_file.write_all(message.as_bytes());
             }
         }
+    } else {
+        println!("{} Couldn't open the log file", "[ERROR]".bold().red());
     }
+    Ok(())
 }

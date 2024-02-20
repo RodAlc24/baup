@@ -13,7 +13,7 @@ use std::{
 use crate::args::{ClearOptions, EditOptions};
 use crate::config::Config;
 
-pub fn edit(config: Config, edit_options: EditOptions, mut _log_file: File) -> io::Result<()> {
+pub fn edit(config: Config, edit_options: EditOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Get the default editor
     let editor = get_editor();
     if editor.eq("") {
@@ -51,7 +51,11 @@ pub fn edit(config: Config, edit_options: EditOptions, mut _log_file: File) -> i
     Ok(())
 }
 
-pub fn clear(config: Config, clear_options: ClearOptions, mut _log_file: File) -> io::Result<()> {
+pub fn clear(
+    config: Config,
+    clear_options: ClearOptions,
+    mut _log_file: &mut File,
+) -> io::Result<()> {
     // Opens file and checks if the file is correctly opened
     let config_file_expanded = expanduser::expanduser(config.path)?;
     let file = File::open(config_file_expanded.clone())?;

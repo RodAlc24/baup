@@ -21,7 +21,7 @@ fn check_if_git_repo(path: &Path) -> bool {
     }
 }
 
-pub fn git(config: Config, arguments: GitOptions, mut _log_file: File) -> io::Result<()> {
+pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(config.path)?;
     let path = match Path::new(&config_path).parent() {
@@ -66,7 +66,7 @@ pub fn git(config: Config, arguments: GitOptions, mut _log_file: File) -> io::Re
     Ok(())
 }
 
-pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: File) -> io::Result<()> {
+pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Opens file and checks if the file is correctly opened
     let config_file_expanded = expanduser::expanduser(config.path)?;
     let file = File::open(config_file_expanded.clone())?;

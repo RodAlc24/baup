@@ -17,7 +17,7 @@ use crate::config::Config;
 pub fn import(
     config: Config,
     import_options: ImportOptions,
-    mut _log_file: File,
+    mut _log_file: &mut File,
 ) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions {
@@ -162,7 +162,7 @@ pub fn import(
 pub fn export(
     config: Config,
     export_options: ExportOptions,
-    mut _log_file: File,
+    mut _log_file: &mut File,
 ) -> io::Result<()> {
     // Options for copying
     let options = dir::CopyOptions {
@@ -299,7 +299,7 @@ pub fn export(
                                 parts[0].bold()
                             );
                             let message = format!(
-                                "[{}][IMPORT][{}] <- {:?}\n",
+                                "[{}][EXPORT][{}] <- {:?}\n",
                                 Local::now().format("%d-%m-%Y %H:%M:%S"),
                                 line,
                                 err
