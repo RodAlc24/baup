@@ -88,18 +88,18 @@ _baup_git() {
   case "$state" in
     cmds)
       _values "baup command" \
-        "checkout[-- checkout branch or paths to working tree]" \
-        "clone[-- clone repository into new directory]" \
-        "commit[-- record changes to repository]" \
-        "diff[-- show changes between commits, commit and working tree, etc.]" \
-        "init[ -- create empty git repository or re-initialize an existing one]" \
-        "log[-- information about files in idex/working directory]" \
-        "merge[-- join two or more development histories together]" \
-        "pull[-- fetch from and merge with another repository or local branch]" \
-        "push[-- update remote refs along with associated objetcs]" \
-        "rebase[-- forward--port local commits to the updated upstream head]" \
-        "remote[-- manage set of tracked repositories]" \
-        "status[-- show working-tree status]" \
+        "checkout[ Checkout branch or paths to working tree]" \
+        "clone[ Clone repository into new directory]" \
+        "commit[ Record changes to repository]" \
+        "diff[ Show changes between commits, commit and working tree, etc.]" \
+        "init[ Create empty git repository or re-initialize an existing one]" \
+        "log[ Information about files in idex/working directory]" \
+        "merge[ Join two or more development histories together]" \
+        "pull[ Fetch from and merge with another repository or local branch]" \
+        "push[ Update remote refs along with associated objetcs]" \
+        "rebase[ Forward-port local commits to the updated upstream head]" \
+        "remote[ Manage set of tracked repositories]" \
+        "status[ Show working-tree status]" \
       ;;
   esac
 }
