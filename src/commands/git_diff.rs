@@ -3,12 +3,14 @@ use colored::Colorize;
 use std::{
     fs::{self, File},
     io::{self, prelude::*, BufReader, Write},
+    os::unix::process::ExitStatusExt,
     path::Path,
     process::Command,
 };
 
 use crate::args::{DiffOptions, GitOptions};
 use crate::config::Config;
+use crate::utils;
 
 fn check_if_git_repo(path: &Path) -> bool {
     let output = Command::new("git")
@@ -21,6 +23,7 @@ fn check_if_git_repo(path: &Path) -> bool {
     }
 }
 
+// TODO: Convertir los expect a unwrap (para controlar los errores)
 pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(config.path)?;
@@ -35,8 +38,7 @@ pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> i
     };
 
     // Check if there is a git repository
-    let repo = check_if_git_repo(path);
-    if repo {
+    if check_if_git_repo(path) {
         // If the command to execute is a commit it adds every file
         if arguments.git_options[0].eq("commit") {
             let _ = Command::new("git")
@@ -45,19 +47,17 @@ pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> i
                 .output();
         }
         // Executes git command
-        let output = Command::new("git")
+        let output = match Command::new("git")
             .args(arguments.git_options)
             .current_dir(path)
             .status()
-            .unwrap();
+        {
+            Ok(res) => res,
+            Err(_) => std::process::ExitStatus::from_raw(1),
+        };
         if !output.success() {
             println!("{} Error while calling git", "[ERROR]".bold().red());
-            let message = format!(
-                "[{}][GIT] <- {:?}\n",
-                Local::now().format("%d-%m-%Y %H:%M:%S"),
-                output
-            );
-            let _ = _log_file.write_all(message.as_bytes());
+            utils::write_to_log("GIT", output.to_string(), _log_file);
         }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
@@ -121,7 +121,10 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
                             &expanded_origin.display().to_string(),
                         ])
                         .status()
-                        .unwrap();
+                        .expect(&format!(
+                            "{} Error while calling git",
+                            "[ERROR]".bold().red()
+                        ));
                     if output.success() {
                         println!(
                             "{} No changes in {}",
@@ -146,7 +149,10 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
                             &expanded_origin.display().to_string(),
                         ])
                         .status()
-                        .unwrap();
+                        .expect(&format!(
+                            "{} Error while calling git",
+                            "[ERROR]".bold().red()
+                        ));
                     if output.success() {
                         println!(
                             "{} No changes in {}",
@@ -166,13 +172,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
             }
             Err(err) => {
                 println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
-                let message = format!(
-                    "[{}][DIFF][{}] <- {:?}\n",
-                    Local::now().format("%d-%m-%Y %H:%M:%S"),
-                    line,
-                    err
-                );
-                let _ = _log_file.write_all(message.as_bytes());
+                utils::write_to_log_with_line("DIFF", line, err.to_string(), _log_file);
             }
         }
     }

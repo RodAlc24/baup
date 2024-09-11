@@ -8,6 +8,7 @@ use std::{fs, fs::OpenOptions, io::Write, path::Path};
 
 mod args;
 mod config;
+mod utils;
 mod commands {
     pub mod edit_clean;
     pub mod git_diff;
