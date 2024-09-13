@@ -1,10 +1,8 @@
-use chrono::Local;
 use colored::Colorize;
 use std::{
     fs::{self, File},
-    io::{self, prelude::*, BufReader, Write},
-    os::unix::process::ExitStatusExt,
-    path::Path,
+    io::{self, prelude::*, stdin, stdout, BufReader},
+    path::{Path, PathBuf},
     process::Command,
 };
 
@@ -23,7 +21,46 @@ fn check_if_git_repo(path: &Path) -> bool {
     }
 }
 
-// TODO: Convertir los expect a unwrap (para controlar los errores)
+fn run_diff_command(to_path: String, expanded_origin: PathBuf, file_name: &str) -> io::Result<()> {
+    let output = Command::new("diff")
+        .args([
+            "-r",
+            "-u",
+            "--color",
+            &to_path,
+            &expanded_origin.display().to_string(),
+        ])
+        .status()
+        .expect(&format!(
+            "{} Error while calling diff",
+            "[ERROR]".bold().red()
+        ));
+    if output.success() {
+        println!(
+            "{} No changes in {}",
+            "[OK]".bold().green(),
+            file_name.bold()
+        );
+    } else {
+        println!(
+            "{} There are changes in {}",
+            "[OK]".bold().green(),
+            file_name.bold()
+        );
+        print!("Press any key to continue... ");
+        stdout().flush()?;
+        match stdin().read_line(&mut String::new()) {
+            Ok(_) => (),
+            Err(err) => {
+                println!("");
+                return Err(err.into());
+            }
+        }
+    }
+
+    Ok(())
+}
+
 pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(config.path)?;
@@ -47,18 +84,21 @@ pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> i
                 .output();
         }
         // Executes git command
-        let output = match Command::new("git")
+        let output = Command::new("git")
             .args(arguments.git_options)
             .current_dir(path)
-            .status()
-        {
-            Ok(res) => res,
-            Err(_) => std::process::ExitStatus::from_raw(1),
-        };
-        if !output.success() {
-            println!("{} Error while calling git", "[ERROR]".bold().red());
-            utils::write_to_log("GIT", output.to_string(), _log_file);
+            .status();
+        match output {
+            Ok(_) => (),
+            Err(res) => {
+                println!("{} Error while calling git", "[ERROR]".bold().red());
+                utils::write_to_log("GIT", res.to_string(), _log_file);
+            }
         }
+        // if !output.success() {
+        // println!("{} Error while calling git", "[ERROR]".bold().red());
+        // utils::write_to_log("GIT", output.to_string(), _log_file);
+        // }
     } else {
         println!("{} Directory is not a git repo", "[ERROR]".bold().red());
     }
@@ -113,59 +153,10 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
                         parts[1],
                         file_name.last().unwrap()
                     );
-                    let output = Command::new("diff")
-                        .args([
-                            "-u",
-                            "--color",
-                            &to_path,
-                            &expanded_origin.display().to_string(),
-                        ])
-                        .status()
-                        .expect(&format!(
-                            "{} Error while calling git",
-                            "[ERROR]".bold().red()
-                        ));
-                    if output.success() {
-                        println!(
-                            "{} No changes in {}",
-                            "[OK]".bold().green(),
-                            parts[0].bold()
-                        );
-                    } else {
-                        println!(
-                            "{} There are changes in {}",
-                            "[OK]".bold().green(),
-                            parts[0].bold()
-                        );
-                    }
+                    run_diff_command(to_path, expanded_origin, parts[0])?;
                 } else if metadata.is_dir() {
                     let to_path = format!("{}/{}/", file_path.display(), parts[1]);
-                    let output = Command::new("diff")
-                        .args([
-                            "-r",
-                            "-u",
-                            "--color",
-                            &to_path,
-                            &expanded_origin.display().to_string(),
-                        ])
-                        .status()
-                        .expect(&format!(
-                            "{} Error while calling git",
-                            "[ERROR]".bold().red()
-                        ));
-                    if output.success() {
-                        println!(
-                            "{} No changes in {}",
-                            "[OK]".bold().green(),
-                            parts[0].bold()
-                        );
-                    } else {
-                        println!(
-                            "{} There are changes in {}",
-                            "[OK]".bold().green(),
-                            parts[0].bold()
-                        );
-                    }
+                    run_diff_command(to_path, expanded_origin, parts[0])?;
                 } else {
                     println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
                 }

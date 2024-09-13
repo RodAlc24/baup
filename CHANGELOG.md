@@ -1,3 +1,8 @@
+# 0.2.2
+
+* The diff command stops when it detects changes as it did in the bash version
+* The log now always remembers the command used when the error was found
+
 # 0.2.1
 
 * Removed from the utility the commit, push and pull commands
