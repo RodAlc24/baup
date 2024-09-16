@@ -62,6 +62,9 @@ pub struct DiffOptions {
     /// Exports only one part of the files
     #[arg(short = 'p', long = "partial", value_name = "DIR", required = false)]
     pub partial: Option<String>,
+    /// Interactive waits for user input when there are changes
+    #[arg(short = 'i', long = "interactive", required = false)]
+    pub interactive: bool,
 }
 
 #[derive(Debug, Args)]

@@ -148,14 +148,16 @@ fn get_editor() -> String {
         // Checks for existance of the EDITOR
         Ok(editor) => editor,
         Err(_) => {
-            let output = Command::new("which").arg("vim").output();
+            // In case of error it checks for the nano editor
+            let output = Command::new("which").arg("nano").output();
             match output {
                 Ok(output) => {
                     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
                     if stdout.ne("") {
                         stdout
                     } else {
-                        let output = Command::new("which").arg("nano").output();
+                        // In case of error it checks for the vim editor
+                        let output = Command::new("which").arg("vim").output();
                         match output {
                             Ok(output) => {
                                 let stdout = String::from_utf8_lossy(&output.stdout).to_string();

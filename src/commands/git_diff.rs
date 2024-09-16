@@ -21,7 +21,12 @@ fn check_if_git_repo(path: &Path) -> bool {
     }
 }
 
-fn run_diff_command(to_path: String, expanded_origin: PathBuf, file_name: &str) -> io::Result<()> {
+fn run_diff_command(
+    to_path: String,
+    expanded_origin: PathBuf,
+    file_name: &str,
+    interactive: bool,
+) -> io::Result<()> {
     let output = Command::new("diff")
         .args([
             "-r",
@@ -47,13 +52,15 @@ fn run_diff_command(to_path: String, expanded_origin: PathBuf, file_name: &str) 
             "[OK]".bold().green(),
             file_name.bold()
         );
-        print!("Press any key to continue... ");
-        stdout().flush()?;
-        match stdin().read_line(&mut String::new()) {
-            Ok(_) => (),
-            Err(err) => {
-                println!("");
-                return Err(err.into());
+        if (interactive) {
+            print!("Press any key to continue... ");
+            stdout().flush()?;
+            match stdin().read_line(&mut String::new()) {
+                Ok(_) => (),
+                Err(err) => {
+                    println!("");
+                    return Err(err.into());
+                }
             }
         }
     }
@@ -153,10 +160,10 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
                         parts[1],
                         file_name.last().unwrap()
                     );
-                    run_diff_command(to_path, expanded_origin, parts[0])?;
+                    run_diff_command(to_path, expanded_origin, parts[0], diff_options.interactive)?;
                 } else if metadata.is_dir() {
                     let to_path = format!("{}/{}/", file_path.display(), parts[1]);
-                    run_diff_command(to_path, expanded_origin, parts[0])?;
+                    run_diff_command(to_path, expanded_origin, parts[0], diff_options.interactive)?;
                 } else {
                     println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
                 }
