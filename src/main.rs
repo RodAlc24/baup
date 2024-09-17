@@ -4,12 +4,7 @@ use chrono::Local;
 use clap::Parser;
 use colored::Colorize;
 use std::io;
-use std::{
-    fs,
-    fs::OpenOptions,
-    io::Write,
-    path::{Path, PathBuf},
-};
+use std::{fs, fs::OpenOptions, io::Write, path::Path};
 
 mod args;
 mod config;
