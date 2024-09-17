@@ -10,64 +10,6 @@ use crate::args::{DiffOptions, GitOptions};
 use crate::config::Config;
 use crate::utils;
 
-fn check_if_git_repo(path: &Path) -> bool {
-    let output = Command::new("git")
-        .args(["rev-parse", "--is-inside-work-tree"])
-        .current_dir(path)
-        .output();
-    match output {
-        Ok(output) => return String::from_utf8_lossy(&output.stdout).eq(&String::from("true\n")),
-        Err(_) => false,
-    }
-}
-
-fn run_diff_command(
-    to_path: String,
-    expanded_origin: PathBuf,
-    file_name: &str,
-    interactive: bool,
-) -> io::Result<()> {
-    let output = Command::new("diff")
-        .args([
-            "-r",
-            "-u",
-            "--color",
-            &to_path,
-            &expanded_origin.display().to_string(),
-        ])
-        .status()
-        .expect(&format!(
-            "{} Error while calling diff",
-            "[ERROR]".bold().red()
-        ));
-    if output.success() {
-        println!(
-            "{} No changes in {}",
-            "[OK]".bold().green(),
-            file_name.bold()
-        );
-    } else {
-        println!(
-            "{} There are changes in {}",
-            "[OK]".bold().green(),
-            file_name.bold()
-        );
-        if (interactive) {
-            print!("Press any key to continue... ");
-            stdout().flush()?;
-            match stdin().read_line(&mut String::new()) {
-                Ok(_) => (),
-                Err(err) => {
-                    println!("");
-                    return Err(err.into());
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
-
 pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Get path from the file_path str
     let config_path = expanduser::expanduser(config.path)?;
@@ -171,6 +113,64 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
             Err(err) => {
                 println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
                 utils::write_to_log_with_line("DIFF", line, err.to_string(), _log_file);
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn check_if_git_repo(path: &Path) -> bool {
+    let output = Command::new("git")
+        .args(["rev-parse", "--is-inside-work-tree"])
+        .current_dir(path)
+        .output();
+    match output {
+        Ok(output) => return String::from_utf8_lossy(&output.stdout).eq(&String::from("true\n")),
+        Err(_) => false,
+    }
+}
+
+fn run_diff_command(
+    to_path: String,
+    expanded_origin: PathBuf,
+    file_name: &str,
+    interactive: bool,
+) -> io::Result<()> {
+    let output = Command::new("diff")
+        .args([
+            "-r",
+            "-u",
+            "--color",
+            &to_path,
+            &expanded_origin.display().to_string(),
+        ])
+        .status()
+        .expect(&format!(
+            "{} Error while calling diff",
+            "[ERROR]".bold().red()
+        ));
+    if output.success() {
+        println!(
+            "{} No changes in {}",
+            "[OK]".bold().green(),
+            file_name.bold()
+        );
+    } else {
+        println!(
+            "{} There are changes in {}",
+            "[OK]".bold().green(),
+            file_name.bold()
+        );
+        if interactive {
+            print!("Press any key to continue... ");
+            stdout().flush()?;
+            match stdin().read_line(&mut String::new()) {
+                Ok(_) => (),
+                Err(err) => {
+                    println!("");
+                    return Err(err.into());
+                }
             }
         }
     }

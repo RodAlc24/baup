@@ -1,6 +1,6 @@
 # 0.2.2
 
-* The diff command stops when it detects changes as it did in the bash version
+* Added interactive flag to the diff command, that stops waiting for user input when a change is found
 * The log now always remembers the command used when the error was found
 * The `nano` editor now has preference over `vim` in the edit command
 
@@ -21,4 +21,6 @@
 
 # 0.1.0
 
-TODO
+Initial version of the program written in Bash. 
+It is used by calling baup and the flag(s) of the command you want to use.
+For example, `baup -i -c "New changes" -p` will import, create a commit called "New changes" and push using git

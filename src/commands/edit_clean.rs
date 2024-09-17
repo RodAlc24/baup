@@ -19,34 +19,23 @@ pub fn edit(config: Config, edit_options: EditOptions, mut _log_file: &mut File)
     if editor.eq("") {
         println!("{} NO editor found", "[ERROR]".bold().red());
     } else {
-        if edit_options.open_config {
-            // Expanding user
-            let expanded_path = match expanduser::expanduser("~/.config/baup/config.toml") {
-                Ok(path) => path,
-                Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
-            };
-
-            // Create path if it doesn't exist
-            if !expanded_path.parent().unwrap().exists() {
-                fs::create_dir_all(expanded_path.parent().unwrap().display().to_string())?;
-            }
-            // Opens the file in file_path in the default editor
-            let _ = Command::new(editor).arg(expanded_path).status();
+        let expanded_path = match expanduser::expanduser(if edit_options.open_config {
+            "~/.config/baup/config.toml"
         } else {
-            // Expanding user
-            let expanded_path = match expanduser::expanduser(config.path) {
-                Ok(path) => path,
-                Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
-            };
-
-            // Create path if it doesn't exist
-            if !expanded_path.parent().unwrap().exists() {
-                fs::create_dir_all(expanded_path.parent().unwrap().display().to_string())?;
+            &config.path
+        }) {
+            Ok(path) => path,
+            Err(err) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("Path expansion failed: {err}"),
+                ))
             }
-
-            // Opens the file in file_path in the default editor
-            let _ = Command::new(editor).arg(expanded_path).status();
-        }
+        };
+        // Create path if it doesn't exist
+        handle_path(&expanded_path)?;
+        // Opens the file in file_path in the default editor
+        Command::new(editor).arg(expanded_path).status()?;
     }
     Ok(())
 }
@@ -178,4 +167,16 @@ fn get_editor() -> String {
     .trim_end_matches('\n')
     .to_string();
     editor
+}
+
+fn handle_path(expanded_path: &Path) -> Result<(), io::Error> {
+    if let Some(parent) = expanded_path.parent() {
+        if !parent.exists() {
+            // Create directory if it doesn't exist
+            fs::create_dir_all(parent)?;
+        }
+    } else {
+        return Err(io::Error::new(io::ErrorKind::NotFound, "Invalid path"));
+    }
+    Ok(())
 }
