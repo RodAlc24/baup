@@ -10,8 +10,11 @@ use std::{
     process::Command,
 };
 
-use crate::args::{ClearOptions, EditOptions};
 use crate::config::Config;
+use crate::{
+    args::{ClearOptions, EditOptions},
+    utils,
+};
 
 pub fn edit(config: Config, edit_options: EditOptions, mut _log_file: &mut File) -> io::Result<()> {
     // Get the default editor
@@ -45,25 +48,11 @@ pub fn clear(
     clear_options: ClearOptions,
     mut _log_file: &mut File,
 ) -> io::Result<()> {
-    // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(config.path)?;
-    let file = File::open(config_file_expanded.clone())?;
-    let reader = BufReader::new(file);
-
-    // Get path from the file_path str
-    let file_path = match Path::new(&config_file_expanded).parent() {
-        Some(path) => path,
-        None => {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Error getting the path for the backup".to_string(),
-            ))
-        }
-    };
+    let file_str = utils::create_file_struct(&config.path)?;
 
     // Checks for the partial flag
     if let Some(ref partial) = clear_options.partial {
-        match fs::remove_dir_all(format!("{}/{}", file_path.display(), partial)) {
+        match fs::remove_dir_all(format!("{}/{}", file_str.file_path.display(), partial)) {
             Ok(_) => {
                 println!(
                     "{} Deleted the {} directory",
@@ -87,7 +76,7 @@ pub fn clear(
     let mut deleted_directories: HashSet<String> = HashSet::new();
 
     // Loop for every line in the file opened
-    for line in reader.lines() {
+    for line in file_str.reader.lines() {
         let line = line?;
         // Check if line is empty or a comment (starts with '#')
         if line.trim().is_empty() || line.trim().starts_with('#') {
@@ -103,7 +92,7 @@ pub fn clear(
         // If the new len is different to the original the name of the directory is new
         if orig_len != deleted_directories.len() {
             // Delete files
-            match fs::remove_dir_all(format!("{}/{}", file_path.display(), parts[1])) {
+            match fs::remove_dir_all(format!("{}/{}", file_str.file_path.display(), parts[1])) {
                 Ok(_) => {
                     println!(
                         "{} Deleted the {} directory",

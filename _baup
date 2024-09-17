@@ -117,6 +117,7 @@ _baup_edit() {
 
 _baup_diff() {
   _arguments -s \
+    {-i,--interactive}'[Diff stops for input after every change detected]' \
     {-p,--partial}'[Diffs only one part of the files]' \
     {-h,--help}'[Print help]' \
 }
