@@ -159,5 +159,3 @@ fn handle_path(expanded_path: &Path) -> Result<(), io::Error> {
     }
     Ok(())
 }
-
-fn remove_directory(path: String) {}

@@ -10,9 +10,12 @@ use std::{
     process::Command,
 };
 
-use crate::args::{ExportOptions, GitOptions, ImportOptions};
 use crate::commands::git_diff;
 use crate::config::Config;
+use crate::{
+    args::{ExportOptions, GitOptions, ImportOptions},
+    utils,
+};
 
 pub fn import(
     config: Config,
@@ -29,40 +32,33 @@ pub fn import(
         depth: 0,
     };
 
-    // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(&config.path)?;
-    let file = File::open(config_file_expanded.clone())?;
-    let reader = BufReader::new(file);
-
-    // Get path from the file_path str
-    let file_path = match Path::new(&config_file_expanded).parent() {
-        Some(path) => path,
-        None => {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Error getting the path for the backup".to_string(),
-            ))
-        }
-    };
+    let file_str = utils::create_file_struct(&config.path)?;
 
     // Executes the hook (if exists)
-    if config.hooks.import_hook.is_some() {
-        let hook_file = expanduser::expanduser(config.hooks.import_hook.as_ref().unwrap()).unwrap();
-        Command::new("sh")
-            .arg(hook_file)
-            .status()
-            .expect("Error executing the hook");
-    }
+    match run_hook(&config.hooks.import_hook) {
+        Ok(_) => (),
+        Err(err) => {
+            println!("{} Error running the hook", "[ERROR]".bold().red());
+            utils::write_to_log_with_line(
+                "IMPORT",
+                "HOOK".to_string(),
+                err.to_string(),
+                _log_file,
+            )?;
+            return Ok(());
+        }
+    };
 
     // HashSet for the subdirectories
     let mut subdirectories: HashSet<String> = HashSet::new();
 
     // Loop for every line in the file opened
-    for line in reader.lines() {
+    for line in file_str.reader.lines() {
         let line = line?;
+        let line_trim = line.trim();
 
         // Check if line is empty or a comment (starts with '#')
-        if line.trim().is_empty() || line.trim().starts_with('#') {
+        if line_trim.is_empty() || line_trim.starts_with('#') {
             continue;
         }
         // Divide the line through the ';'
@@ -89,7 +85,7 @@ pub fn import(
         // Getting from locations
         let from_paths: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
         // Getting the new location for the files
-        let copy_path = format!("{}/{}", file_path.display(), parts[1]);
+        let copy_path = format!("{}/{}", file_str.file_path.display(), parts[1]);
         // Creating (if necessary) the directory for the files
         fs::create_dir_all(copy_path.clone())?;
         // Copying the files
@@ -127,7 +123,7 @@ pub fn import(
             .arg("baup.zip")
             .arg("-r")
             .args(subdirectories)
-            .current_dir(file_path)
+            .current_dir(&file_str.file_path)
             .output()
             .unwrap();
         if result.status.success() {
@@ -145,7 +141,7 @@ pub fn import(
 
     // Create the commit if the auto-commit option is enabled
     if import_options.auto_commit || config.auto_commit {
-        let commit_msg = get_changed_files(&file_path.display().to_string());
+        let commit_msg = get_changed_files(&file_str.file_path.display().to_string());
         if commit_msg.ne("") {
             let options = GitOptions {
                 git_options: vec!["commit".to_string(), String::from("-m"), commit_msg],
@@ -191,13 +187,19 @@ pub fn export(
     };
 
     // Executes the hook (if exists)
-    if config.hooks.export_hook.is_some() {
-        let hook_file = expanduser::expanduser(config.hooks.export_hook.as_ref().unwrap()).unwrap();
-        Command::new("sh")
-            .arg(hook_file)
-            .status()
-            .expect("Error executing the hook");
-    }
+    match run_hook(&config.hooks.export_hook) {
+        Ok(_) => (),
+        Err(err) => {
+            println!("{} Error running the hook", "[ERROR]".bold().red());
+            utils::write_to_log_with_line(
+                "EXPORT",
+                "HOOK".to_string(),
+                err.to_string(),
+                _log_file,
+            )?;
+            return Ok(());
+        }
+    };
 
     // Loop for every line in the file opened
     for line in reader.lines() {
@@ -380,4 +382,20 @@ fn get_changed_files(directory: &str) -> String {
     }
 
     result.trim_end_matches(" ; ").to_string()
+}
+
+fn run_hook(hook_to_run: &Option<String>) -> Result<(), io::Error> {
+    // Executes the hook (if exists)
+    if let Some(ref hook) = hook_to_run {
+        let hook_file = match expanduser::expanduser(&hook) {
+            Ok(hf) => hf,
+            Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
+        };
+        let output = Command::new("sh").arg(hook_file).status()?;
+
+        if !output.success() {
+            return Err(io::Error::new(io::ErrorKind::Other, output.to_string()));
+        }
+    }
+    Ok(())
 }
