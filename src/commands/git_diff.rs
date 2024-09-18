@@ -41,7 +41,7 @@ pub fn git(config: Config, arguments: GitOptions, mut _log_file: &mut File) -> i
             Ok(_) => (),
             Err(res) => {
                 println!("{} Error while calling git", "[ERROR]".bold().red());
-                utils::write_to_log("GIT", res.to_string(), _log_file);
+                utils::write_to_log("GIT", res.to_string(), _log_file)?;
             }
         }
         // if !output.success() {
@@ -112,7 +112,7 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
             }
             Err(err) => {
                 println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
-                utils::write_to_log_with_line("DIFF", line, err.to_string(), _log_file);
+                utils::write_to_log_with_line("DIFF", line, err.to_string(), _log_file)?;
             }
         }
     }

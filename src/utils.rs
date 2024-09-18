@@ -10,14 +10,19 @@ pub struct FileStruct {
     pub reader: BufReader<File>,
 }
 
-pub fn write_to_log(command: &str, message: String, mut _log_file: &mut File) {
+pub fn write_to_log(
+    command: &str,
+    message: String,
+    mut _log_file: &mut File,
+) -> Result<(), io::Error> {
     let message = format!(
         "[{}][{}] <- {:?}\n",
         Local::now().format("%d-%m-%Y %H:%M:%S"),
         command,
         message
     );
-    let _ = _log_file.write_all(message.as_bytes());
+    _log_file.write_all(message.as_bytes())?;
+    Ok(())
 }
 
 pub fn write_to_log_with_line(
@@ -25,7 +30,7 @@ pub fn write_to_log_with_line(
     line: String,
     message: String,
     mut _log_file: &mut File,
-) {
+) -> Result<(), io::Error> {
     let message = format!(
         "[{}][{}][{}] <- {:?}\n",
         Local::now().format("%d-%m-%Y %H:%M:%S"),
@@ -33,7 +38,8 @@ pub fn write_to_log_with_line(
         line,
         message
     );
-    let _ = _log_file.write_all(message.as_bytes());
+    _log_file.write_all(message.as_bytes())?;
+    Ok(())
 }
 
 pub fn create_file_struct(path: &str) -> Result<FileStruct, io::Error> {

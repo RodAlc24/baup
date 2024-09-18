@@ -1,11 +1,10 @@
-use chrono::Local;
 use colored::Colorize;
 use std::{
     collections::HashSet,
     env::var,
     fs,
     fs::File,
-    io::{self, prelude::*, BufReader, Write},
+    io::{self, prelude::*},
     path::Path,
     process::Command,
 };
@@ -78,19 +77,16 @@ pub fn clear(
     // Loop for every line in the file opened
     for line in file_str.reader.lines() {
         let line = line?;
+        let line_trim = line.trim();
         // Check if line is empty or a comment (starts with '#')
-        if line.trim().is_empty() || line.trim().starts_with('#') {
+        if line_trim.is_empty() || line_trim.starts_with('#') {
             continue;
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
 
-        // Get the original lenght of the HashSet
-        let orig_len = deleted_directories.len();
-        deleted_directories.insert(parts[1].to_string());
-
-        // If the new len is different to the original the name of the directory is new
-        if orig_len != deleted_directories.len() {
+        if !deleted_directories.contains(parts[1]) {
+            deleted_directories.insert(parts[1].to_string());
             // Delete files
             match fs::remove_dir_all(format!("{}/{}", file_str.file_path.display(), parts[1])) {
                 Ok(_) => {
@@ -106,13 +102,7 @@ pub fn clear(
                         "[ERROR]".bold().red(),
                         parts[1].bold()
                     );
-                    let message = format!(
-                        "[{}][CLEAR][{}] <- {:?}\n",
-                        Local::now().format("%d-%m-%Y %H:%M:%S"),
-                        line,
-                        err
-                    );
-                    let _ = _log_file.write_all(message.as_bytes());
+                    utils::write_to_log_with_line("CLEAR", line, err.to_string(), _log_file)?;
                 }
             }
         }
@@ -169,3 +159,5 @@ fn handle_path(expanded_path: &Path) -> Result<(), io::Error> {
     }
     Ok(())
 }
+
+fn remove_directory(path: String) {}

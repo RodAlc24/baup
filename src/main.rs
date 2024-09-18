@@ -79,7 +79,7 @@ fn main() -> io::Result<()> {
                     "[ERROR]".bold().red(),
                     command
                 );
-                utils::write_to_log(command, err.to_string(), &mut log_file);
+                let _ = utils::write_to_log(command, err.to_string(), &mut log_file);
             }
         }
     } else {
