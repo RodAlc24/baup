@@ -6,7 +6,7 @@ use std::{
     collections::HashSet,
     fs::{self, File},
     io::{self, prelude::*, BufReader},
-    path::Path,
+    path::{Path, PathBuf},
     process::Command,
 };
 
@@ -23,14 +23,7 @@ pub fn import(
     mut _log_file: &mut File,
 ) -> io::Result<()> {
     // Options for copying
-    let options = dir::CopyOptions {
-        overwrite: true,
-        skip_exist: false,
-        buffer_size: 64000,
-        copy_inside: false,
-        content_only: false,
-        depth: 0,
-    };
+    let options = utils::create_copy_options();
 
     let file_str = utils::create_file_struct(&config.path)?;
 
@@ -106,37 +99,24 @@ pub fn import(
                     parts[0].bold(),
                     parts[1].bold()
                 );
-                let message = format!(
-                    "[{}][IMPORT][{}] <- {:?}\n",
-                    Local::now().format("%d-%m-%Y %H:%M:%S"),
-                    line,
-                    err
-                );
-                let _ = _log_file.write_all(message.as_bytes());
+                utils::write_to_log_with_line("IMPORT", line, err.to_string(), _log_file)?;
             }
         }
     }
 
     // Creates the zip file (if option used)
     if import_options.create_zip {
-        let result = Command::new("zip")
-            .arg("baup.zip")
-            .arg("-r")
-            .args(subdirectories)
-            .current_dir(&file_str.file_path)
-            .output()
-            .unwrap();
-        if result.status.success() {
-            println!("{} Created zip file", "[OK]".bold().green());
-        } else {
-            println!("{} Couldn't create the zip file", "[OK]".bold().green());
-            let message = format!(
-                "[{}][IMPORT][ZIP] <- {:?}\n",
-                Local::now().format("%d-%m-%Y %H:%M:%S"),
-                result.stderr
-            );
-            let _ = _log_file.write_all(message.as_bytes());
-        }
+        match create_zip(subdirectories, &file_str.file_path) {
+            Ok(_) => (),
+            Err(err) => {
+                utils::write_to_log_with_line(
+                    "IMPORT",
+                    "ZIP".to_string(),
+                    err.to_string(),
+                    _log_file,
+                )?;
+            }
+        };
     }
 
     // Create the commit if the auto-commit option is enabled
@@ -161,30 +141,9 @@ pub fn export(
     mut _log_file: &mut File,
 ) -> io::Result<()> {
     // Options for copying
-    let options = dir::CopyOptions {
-        overwrite: true,
-        skip_exist: false,
-        buffer_size: 64000,
-        copy_inside: false,
-        content_only: false,
-        depth: 0,
-    };
+    let options = utils::create_copy_options();
 
-    // Opens file and checks if the file is correctly opened
-    let config_file_expanded = expanduser::expanduser(&config.path)?;
-    let file = File::open(config_file_expanded.clone())?;
-    let reader = BufReader::new(file);
-
-    // Get path from the file_path str
-    let file_path = match Path::new(&config_file_expanded).parent() {
-        Some(path) => path,
-        None => {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Error getting the path for the backup".to_string(),
-            ))
-        }
-    };
+    let file_str = utils::create_file_struct(&config.path)?;
 
     // Executes the hook (if exists)
     match run_hook(&config.hooks.export_hook) {
@@ -202,19 +161,21 @@ pub fn export(
     };
 
     // Loop for every line in the file opened
-    for line in reader.lines() {
+    for line in file_str.reader.lines() {
         let line = line?;
+        let line_trim = line.trim();
+
         // Check if line is empty or a comment (starts with '#')
-        if line.trim().is_empty() || line.trim().starts_with('#') {
+        if line_trim.is_empty() || line_trim.starts_with('#') {
             continue;
         }
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
-        let from_paths = match get_files_from_path(&format!("{}/{}", file_path.display(), parts[1]))
-        {
-            Ok(paths) => paths,
-            Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
-        };
+        let from_paths =
+            match get_files_from_path(&format!("{}/{}", file_str.file_path.display(), parts[1])) {
+                Ok(paths) => paths,
+                Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
+            };
 
         // Checks for the partial flag
         if let Some(ref partial) = export_options.partial {
@@ -234,7 +195,6 @@ pub fn export(
         // Creating, if necessary, the directory for the file or directory
         if !expanded_path.exists() {
             if is_dir == '/' {
-                println!("d");
                 fs::create_dir_all(&expanded_path)?;
             } else {
                 fs::create_dir_all(Path::new(&expanded_path).parent().unwrap())?;
@@ -250,7 +210,7 @@ pub fn export(
                     let filename = Path::new(parts[0]);
                     let from_path = format!(
                         "{}/{}/{}",
-                        file_path.display(),
+                        file_str.file_path.display(),
                         parts[1],
                         filename.file_name().unwrap().to_str().unwrap()
                     );
@@ -271,13 +231,12 @@ pub fn export(
                                 parts[1].bold(),
                                 parts[0].bold()
                             );
-                            let message = format!(
-                                "[{}][IMPORT][{}] <- {:?}\n",
-                                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                            utils::write_to_log_with_line(
+                                "EXPORT",
                                 line,
-                                err
-                            );
-                            let _ = _log_file.write_all(message.as_bytes());
+                                err.to_string(),
+                                _log_file,
+                            )?;
                         }
                     }
                 } else if metadata.is_dir() {
@@ -300,13 +259,12 @@ pub fn export(
                                 parts[1].bold(),
                                 parts[0].bold()
                             );
-                            let message = format!(
-                                "[{}][EXPORT][{}] <- {:?}\n",
-                                Local::now().format("%d-%m-%Y %H:%M:%S"),
+                            utils::write_to_log_with_line(
+                                "IMPORT",
                                 line,
-                                err
-                            );
-                            let _ = _log_file.write_all(message.as_bytes());
+                                err.to_string(),
+                                _log_file,
+                            )?;
                         }
                     }
                 } else {
@@ -396,6 +354,27 @@ fn run_hook(hook_to_run: &Option<String>) -> Result<(), io::Error> {
         if !output.success() {
             return Err(io::Error::new(io::ErrorKind::Other, output.to_string()));
         }
+    }
+    Ok(())
+}
+
+fn create_zip(directories: HashSet<String>, file_path: &PathBuf) -> Result<(), io::Error> {
+    let result = Command::new("zip")
+        .arg("baup.zip")
+        .arg("-r")
+        .args(directories)
+        .current_dir(file_path)
+        .output()
+        .unwrap();
+    if result.status.success() {
+        println!("{} Created zip file", "[OK]".bold().green());
+    } else {
+        println!("{} Couldn't create the zip file", "[OK]".bold().green());
+        let err = match String::from_utf8(result.stderr) {
+            Ok(err) => err,
+            Err(err) => "Error converting from utf8".to_string(),
+        };
+        return Err(io::Error::new(io::ErrorKind::Other, err));
     }
     Ok(())
 }

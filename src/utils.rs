@@ -1,4 +1,5 @@
 use chrono::Local;
+use fs_extra::dir;
 use std::{
     fs::File,
     io::{self, BufReader, Write},
@@ -59,4 +60,15 @@ pub fn create_file_struct(path: &str) -> Result<FileStruct, io::Error> {
         }
     };
     Ok(FileStruct { file_path, reader })
+}
+
+pub fn create_copy_options -> dir::CopyOptions {
+    return dir::CopyOptions {
+        overwrite: true,
+        skip_exist: false,
+        buffer_size: 64000,
+        copy_inside: false,
+        content_only: false,
+        depth: 0,
+    };
 }
