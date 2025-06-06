@@ -1,3 +1,4 @@
+use colored::Colorize;
 use serde::Deserialize;
 use std::env::var;
 use std::fs;
@@ -48,7 +49,10 @@ fn default_hooks() -> Hooks {
 
 pub fn get_config() -> Config {
     // Get the value from the HOME variable
-    let home = var("HOME").unwrap();
+    let home = var("HOME").unwrap_or(format!(
+        "{} Couldn't get the value of HOME",
+        "[ERROR]".bold().red()
+    ));
     // Read the config file (if exists)
     let config_file_path = format!("{}/.config/baup/config.toml", home);
     let config_file = fs::read_to_string(config_file_path).unwrap_or("".to_string());

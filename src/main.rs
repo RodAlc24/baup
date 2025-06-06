@@ -24,9 +24,9 @@ fn main() -> io::Result<()> {
         Ok(file) => Some(file),
         Err(_) => None,
     };
-    if log_file.is_some() {
+    if let Some(ref log) = log_file {
         // If there is no error, creates (if necessary) the directory for the log file
-        let log_file_dir = log_file.unwrap();
+        let log_file_dir = log;
         let log_dir = match Path::new(&log_file_dir).parent() {
             Some(path) => path,
             None => {
