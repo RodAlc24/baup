@@ -1,11 +1,9 @@
-use chrono::Local;
 use colored::Colorize;
 use expanduser;
-use fs_extra::dir;
 use std::{
     collections::HashSet,
     fs::{self, File},
-    io::{self, prelude::*, BufReader},
+    io::{self, prelude::*},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -372,7 +370,7 @@ fn create_zip(directories: HashSet<String>, file_path: &PathBuf) -> Result<(), i
         println!("{} Couldn't create the zip file", "[OK]".bold().green());
         let err = match String::from_utf8(result.stderr) {
             Ok(err) => err,
-            Err(err) => "Error converting from utf8".to_string(),
+            Err(_) => "Error converting from utf8".to_string(),
         };
         return Err(io::Error::new(io::ErrorKind::Other, err));
     }

@@ -95,13 +95,14 @@ pub fn diff(config: Config, diff_options: DiffOptions, mut _log_file: &mut File)
         match fs::metadata(expanded_origin.clone()) {
             Ok(metadata) => {
                 if metadata.is_file() {
-                    let file_name: Vec<&str> = parts[0].split('/').collect();
-                    let to_path = format!(
-                        "{}/{}/{}",
-                        file_path.display(),
-                        parts[1],
-                        file_name.last().unwrap()
-                    );
+                    let file_name = match parts[0].split('/').last() {
+                        Some(fname) => fname,
+                        None => {
+                            println!("{} Couldn't diff {}", "[ERROR]".bold().red(), parts[0]);
+                            continue;
+                        }
+                    };
+                    let to_path = format!("{}/{}/{}", file_path.display(), parts[1], file_name);
                     run_diff_command(to_path, expanded_origin, parts[0], diff_options.interactive)?;
                 } else if metadata.is_dir() {
                     let to_path = format!("{}/{}/", file_path.display(), parts[1]);
