@@ -34,6 +34,9 @@ pub struct ImportOptions {
     /// Creates a zip file with all the files after backing them up
     #[arg(short = 'z', long = "zip", required = false)]
     pub create_zip: bool,
+    /// Sets the debug information to true
+    #[arg(long = "debug", required = false)]
+    pub debug: bool,
 }
 
 #[derive(Debug, Args)]
@@ -41,6 +44,9 @@ pub struct ExportOptions {
     /// Exports only one part of the files
     #[arg(short = 'p', long = "partial", value_name = "DIR", required = false)]
     pub partial: Option<String>,
+    /// Sets the debug information to true
+    #[arg(long = "debug", required = false)]
+    pub debug: bool,
 }
 
 #[derive(Debug, Args)]
@@ -55,6 +61,9 @@ pub struct EditOptions {
     /// Open config file instead of backups file
     #[arg(short = 'c', long = "config", required = false)]
     pub open_config: bool,
+    /// Sets the debug information to true
+    #[arg(long = "debug", required = false)]
+    pub debug: bool,
 }
 
 #[derive(Debug, Args)]
@@ -65,6 +74,9 @@ pub struct DiffOptions {
     /// Interactive waits for user input when there are changes
     #[arg(short = 'i', long = "interactive", required = false)]
     pub interactive: bool,
+    /// Sets the debug information to true
+    #[arg(long = "debug", required = false)]
+    pub debug: bool,
 }
 
 #[derive(Debug, Args)]
@@ -72,4 +84,7 @@ pub struct ClearOptions {
     /// Deltes only one part of the files
     #[arg(short = 'p', long = "partial", value_name = "DIR", required = false)]
     pub partial: Option<String>,
+    /// Sets the debug information to true
+    #[arg(long = "debug", required = false)]
+    pub debug: bool,
 }

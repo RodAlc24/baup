@@ -11,38 +11,6 @@ pub struct FileStruct {
     pub reader: BufReader<File>,
 }
 
-pub fn write_to_log(
-    command: &str,
-    message: String,
-    mut _log_file: &mut File,
-) -> Result<(), io::Error> {
-    let message = format!(
-        "[{}][{}] <- {:?}\n",
-        Local::now().format("%d-%m-%Y %H:%M:%S"),
-        command,
-        message
-    );
-    _log_file.write_all(message.as_bytes())?;
-    Ok(())
-}
-
-pub fn write_to_log_with_line(
-    command: &str,
-    line: String,
-    message: String,
-    mut _log_file: &mut File,
-) -> Result<(), io::Error> {
-    let message = format!(
-        "[{}][{}][{}] <- {:?}\n",
-        Local::now().format("%d-%m-%Y %H:%M:%S"),
-        command,
-        line,
-        message
-    );
-    _log_file.write_all(message.as_bytes())?;
-    Ok(())
-}
-
 pub fn create_file_struct(path: &str) -> Result<FileStruct, io::Error> {
     // Opens file and checks if the file is correctly opened
     let config_file_expanded = expanduser::expanduser(path)?;

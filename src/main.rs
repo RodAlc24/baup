@@ -7,6 +7,7 @@ use std::{fs, fs::OpenOptions, path::Path};
 
 mod args;
 mod config;
+mod logger;
 mod utils;
 mod commands {
     pub mod edit_clean;
@@ -44,6 +45,8 @@ fn main() -> io::Result<()> {
         // Parse the arguments using the clap utility
         let arguments = BaupArgs::parse();
         let command: &str;
+
+        // Executes the command
         let res = match arguments.command {
             Com::Import(options) => {
                 command = "IMPORT";
@@ -79,7 +82,8 @@ fn main() -> io::Result<()> {
                     "[ERROR]".bold().red(),
                     command
                 );
-                let _ = utils::write_to_log(command, err.to_string(), &mut log_file);
+                // Logs the error
+                logger::log_error(command, err.to_string(), &mut log_file)?;
             }
         }
     } else {

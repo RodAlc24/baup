@@ -167,6 +167,7 @@ pub fn export(
         if line_trim.is_empty() || line_trim.starts_with('#') {
             continue;
         }
+
         // Divide the line through the ';'
         let parts: Vec<&str> = line.split(';').collect();
         let from_paths =
@@ -188,7 +189,15 @@ pub fn export(
             Err(err) => return Err(io::Error::new(io::ErrorKind::Other, err)),
         };
 
-        let is_dir = expanded_path.display().to_string().chars().last().unwrap();
+        let is_dir = match expanded_path.display().to_string().chars().last() {
+            Some(dir) => dir,
+            None => {
+                return Err(io::Error::new(
+                    io::ErrorKind::NotFound,
+                    "Error detecting directory",
+                ))
+            }
+        };
 
         // Creating, if necessary, the directory for the file or directory
         if !expanded_path.exists() {
